@@ -1,0 +1,54 @@
+#!/bin/sh
+# XappiensOS: ajustes de Bluetooth según el hardware de este equipo.
+#
+# Lo ejecuta xappiens-bt-quirks.service en cada arranque (antes de que se
+# inicie el audio de la sesión). Con --revert quita todos los ajustes.
+#
+#   MediaTek MT7925 -> perfil de llamadas sin mSBC para WirePlumber.
+set -eu
+
+CONF_DIR=/etc/wireplumber/wireplumber.conf.d
+MT7925_LINK="$CONF_DIR/50-xappiens-mt7925-hfp.conf"
+MT7925_CONF=/usr/share/xappiens/wireplumber/50-xappiens-mt7925-hfp.conf
+
+has_mt7925() {
+    # Tarjeta combinada wifi+Bluetooth (PCI 14c3:7925)...
+    for dev in /sys/bus/pci/devices/*; do
+        [ -r "$dev/vendor" ] || continue
+        if [ "$(cat "$dev/vendor")" = 0x14c3 ] && [ "$(cat "$dev/device")" = 0x7925 ]; then
+            return 0
+        fi
+    done
+    # ...o su parte Bluetooth con el identificador USB de MediaTek.
+    for dev in /sys/bus/usb/devices/*; do
+        [ -r "$dev/idVendor" ] || continue
+        if [ "$(cat "$dev/idVendor"):$(cat "$dev/idProduct")" = 0e8d:7925 ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+enable_link() {
+    mkdir -p "$CONF_DIR"
+    # Un fichero propio del administrador en esa ruta manda: no se toca.
+    if [ -e "$1" ] && [ ! -L "$1" ]; then
+        return 0
+    fi
+    if [ "$(readlink "$1" 2>/dev/null)" != "$2" ]; then
+        ln -sfn "$2" "$1"
+    fi
+}
+
+disable_link() {
+    # Sólo quitamos el enlace si es nuestro (nunca un fichero del usuario).
+    if [ -L "$1" ] && [ "$(readlink "$1")" = "$2" ]; then
+        rm -f "$1"
+    fi
+}
+
+if [ "${1:-}" != "--revert" ] && has_mt7925; then
+    enable_link "$MT7925_LINK" "$MT7925_CONF"
+else
+    disable_link "$MT7925_LINK" "$MT7925_CONF"
+fi

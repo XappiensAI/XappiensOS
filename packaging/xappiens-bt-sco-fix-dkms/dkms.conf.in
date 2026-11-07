@@ -1,0 +1,17 @@
+PACKAGE_NAME="xappiens-bt-sco-fix"
+PACKAGE_VERSION="@VERSION@"
+
+# Sólo el módulo central; rfcomm, bnep, hidp... siguen siendo los del kernel.
+BUILT_MODULE_NAME[0]="bluetooth"
+BUILT_MODULE_LOCATION[0]="net/bluetooth/"
+DEST_MODULE_LOCATION[0]="/updates/dkms"
+
+PRE_BUILD="prepare.sh ${kernelver} ${kernel_source_dir}"
+MAKE[0]="make -C ${kernel_source_dir} M=${dkms_tree}/${PACKAGE_NAME}/${PACKAGE_VERSION}/build/net/bluetooth modules"
+# DKMS ejecuta CLEAN después de PRE_BUILD: no debe borrar lo que prepara
+# prepare.sh. La fuente se copia de cero en cada compilación.
+CLEAN="true"
+
+# Sólo kernels cuya fuente va en el paquete (upstream/<versión>/).
+BUILD_EXCLUSIVE_KERNEL="@KERNEL_REGEX@"
+AUTOINSTALL="yes"

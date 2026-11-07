@@ -27,6 +27,9 @@ que se publique debe sustituir su imagen.
 - [x] Paquete `xappiens-default-settings` (`packaging/build-deb.sh`): convierte un
       Pop!_OS 26.04 instalado en XappiensOS sin reinstalar. Comparte el overlay
       con la ISO.
+- [x] Paquete `xappiens-bt-sco-fix-dkms`: micrófono Bluetooth mudo tras la primera
+      llamada (parche SCO/eSCO). Hay que añadir la fuente de cada kernel nuevo de
+      Pop!_OS con `fetch-source.sh`.
 - [ ] Paquete `xappiens-desktop` (metapaquete sobre `pop-desktop`).
 - [ ] Repositorio APT firmado de XappiensOS (p. ej. GitHub Pages + reprepro/aptly).
 - [ ] Clave de firma oficial del proyecto (sustituir la clave local de `build.sh`).

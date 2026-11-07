@@ -69,12 +69,18 @@ Pop!_OS 26.04 en XappiensOS conservando tus archivos, aplicaciones y ajustes.
 1. **Actualiza a Pop!_OS 26.04** si aún tienes la 24.04, con la herramienta
    oficial de Pop (Ajustes → Actualización del sistema, o
    `pop-upgrade release upgrade`). Haz antes una copia de seguridad de `/home`.
-2. **Construye e instala el paquete** (construirlo no necesita `sudo`):
+2. **Construye e instala los paquetes** (construirlos no necesita `sudo`):
 
    ```bash
    packaging/build-deb.sh
-   sudo apt install ./build/packages/xappiens-default-settings_*_all.deb
+   sudo apt install ./build/packages/*.deb
    ```
+
+   - `xappiens-default-settings`: identidad, pantalla de arranque y ajustes
+     de Bluetooth según el hardware (perfil de llamadas para MediaTek MT7925).
+   - `xappiens-bt-sco-fix-dkms`: módulo bluetooth corregido para el micrófono
+     de auriculares que se queda mudo tras la primera llamada
+     ([detalles](packaging/xappiens-bt-sco-fix-dkms/README.md)).
 
 3. Reinicia para ver la nueva pantalla de arranque.
 

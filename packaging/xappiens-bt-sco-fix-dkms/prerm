@@ -1,0 +1,17 @@
+#!/bin/sh
+# xappiens-bt-sco-fix-dkms: retira el módulo de DKMS (en desinstalación y en
+# actualización; el postinst de la versión nueva lo vuelve a compilar).
+set -e
+
+NAME=xappiens-bt-sco-fix
+VER="@VERSION@"
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        if dkms status -m "$NAME" -v "$VER" 2>/dev/null | grep -q .; then
+            dkms remove -m "$NAME" -v "$VER" --all || true
+        fi
+        ;;
+esac
+
+exit 0

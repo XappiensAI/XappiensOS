@@ -1,0 +1,18 @@
+#!/bin/sh
+# xappiens-bt-sco-fix-dkms: tras desinstalarlo, regenera el initramfs para que
+# vuelva a arrancar con el módulo bluetooth original.
+set -e
+
+case "$1" in
+    remove)
+        if [ "${XAPPIENS_NO_INITRAMFS:-0}" != 1 ]; then
+            if command -v update-initramfs >/dev/null 2>&1; then
+                update-initramfs -u -k all || echo "AVISO: no se pudo regenerar el initramfs" >&2
+            elif command -v dracut >/dev/null 2>&1; then
+                dracut --force --regenerate-all || echo "AVISO: no se pudo regenerar el initramfs" >&2
+            fi
+        fi
+        ;;
+esac
+
+exit 0

@@ -8,6 +8,8 @@ case "$1" in
     remove|deconfigure)
         /usr/lib/xappiens/apply-branding --revert
         /usr/lib/xappiens/set-plymouth-theme --revert
+        systemctl disable xappiens-bt-quirks.service >/dev/null 2>&1 || true
+        /usr/lib/xappiens/bt-quirks --revert || true
         rm -f /etc/xappiens/os-release /etc/xappiens/lsb-release \
               /etc/xappiens/issue /etc/xappiens/issue.net
         rmdir /etc/xappiens 2>/dev/null || true

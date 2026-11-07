@@ -19,6 +19,12 @@ case "$1" in
         UBUNTU_CODE="@UBUNTU_CODE@" /usr/lib/xappiens/write-identity
         /usr/lib/xappiens/apply-branding
         /usr/lib/xappiens/set-plymouth-theme
+        # Ajustes de Bluetooth según el hardware: en cada arranque y ahora.
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload || true
+        fi
+        systemctl enable xappiens-bt-quirks.service >/dev/null 2>&1 || true
+        /usr/lib/xappiens/bt-quirks || true
         refresh_initramfs
         echo "Ahora este sistema es $(. /etc/os-release; echo "$PRETTY_NAME")."
         echo "Reinicia para ver la nueva pantalla de arranque."

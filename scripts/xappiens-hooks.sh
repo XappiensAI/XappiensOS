@@ -23,9 +23,15 @@ if [ -d "$OVERLAY" ]; then
 fi
 
 if [ -d "$HOOKS" ]; then
-    sudo rm -rf "$ROOT/iso/hooks"
-    sudo mkdir -p "$ROOT/iso/hooks"
+    sudo rm -rf "$ROOT/iso/hooks" "$ROOT/iso/packages"
+    sudo mkdir -p "$ROOT/iso/hooks" "$ROOT/iso/packages"
     sudo rsync -rt --chmod=D755,F755 "$HOOKS/" "$ROOT/iso/hooks/"
+
+    # Paquetes propios construidos por build.sh (packaging/build-deb.sh), para
+    # que los hooks los instalen.
+    if [ -n "${XAPPIENS_PACKAGES:-}" ] && [ -d "$XAPPIENS_PACKAGES" ]; then
+        sudo rsync -rt --chmod=D755,F644 "$XAPPIENS_PACKAGES/" "$ROOT/iso/packages/"
+    fi
 
     for hook in $(cd "$ROOT/iso/hooks" && ls -1 -- *.sh 2>/dev/null | sort); do
         echo "==> [xappiens:$STAGE] hook $hook"
@@ -39,5 +45,5 @@ if [ -d "$HOOKS" ]; then
             chroot "$ROOT" /bin/bash -e "/iso/hooks/$hook"
     done
 
-    sudo rm -rf "$ROOT/iso/hooks"
+    sudo rm -rf "$ROOT/iso/hooks" "$ROOT/iso/packages"
 fi

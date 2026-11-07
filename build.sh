@@ -61,6 +61,14 @@ fi
 BUILD="$XAPPIENS_BUILD_ROOT/$DISTRO_VERSION/$DISTRO_ARCH"
 info "XappiensOS $DISTRO_VERSION ($DISTRO_ARCH) -> $BUILD"
 
+# 5. Paquetes propios (packaging/): los instalan los hooks del chroot.
+if [ "${1:-iso}" != clean ]; then
+    info "Construyendo los paquetes de XappiensOS"
+    rm -rf "$BUILD/packages"
+    OUT="$BUILD/packages" DISTRO_VERSION="$DISTRO_VERSION" bash packaging/build-deb.sh
+    export XAPPIENS_PACKAGES="$BUILD/packages"
+fi
+
 exec make \
     DISTRO_CODE="$DISTRO_CODE" \
     DISTRO_VERSION="$DISTRO_VERSION" \

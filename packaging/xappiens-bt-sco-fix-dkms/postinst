@@ -1,0 +1,52 @@
+#!/bin/sh
+# xappiens-bt-sco-fix-dkms: compila e instala el módulo bluetooth corregido
+# para cada kernel instalado que tenga su fuente en el paquete.
+set -e
+
+NAME=xappiens-bt-sco-fix
+VER="@VERSION@"
+
+secure_boot_enabled() {
+    command -v mokutil >/dev/null 2>&1 &&
+        mokutil --sb-state 2>/dev/null | grep -qi 'SecureBoot enabled'
+}
+
+refresh_initramfs() {
+    [ "${XAPPIENS_NO_INITRAMFS:-0}" = 1 ] && return 0
+    if command -v update-initramfs >/dev/null 2>&1; then
+        update-initramfs -u -k "$1" || echo "AVISO: no se pudo regenerar el initramfs de $1" >&2
+    elif command -v dracut >/dev/null 2>&1; then
+        dracut --force --kver "$1" || echo "AVISO: no se pudo regenerar el initramfs de $1" >&2
+    fi
+}
+
+case "$1" in
+    configure)
+        dkms add -m "$NAME" -v "$VER" >/dev/null 2>&1 || true
+
+        # Un módulo sin firmar con Secure Boot activo no se carga, y entonces
+        # el equipo se quedaría sin Bluetooth: en ese caso no lo instalamos.
+        if secure_boot_enabled; then
+            echo "AVISO: Secure Boot está activo; no se instala el módulo bluetooth corregido." >&2
+            exit 0
+        fi
+
+        for kdir in /lib/modules/*; do
+            kver="$(basename "$kdir")"
+            [ -e "$kdir/build/include" ] || continue
+            if [ -f "$kdir/updates/linux-bluetooth-headset-mic-fix/bluetooth.ko" ]; then
+                echo "AVISO: $kver tiene un bluetooth.ko instalado a mano en" >&2
+                echo "  $kdir/updates/linux-bluetooth-headset-mic-fix/ ; quítalo con el" >&2
+                echo "  uninstall.sh de linux-bluetooth-headset-mic-fix para usar este paquete." >&2
+            fi
+            # Los kernels sin fuente en el paquete se saltan (BUILD_EXCLUSIVE).
+            dkms install -m "$NAME" -v "$VER" -k "$kver" || true
+            if dkms status -m "$NAME" -v "$VER" -k "$kver" 2>/dev/null | grep -q installed; then
+                echo "Módulo bluetooth corregido instalado para $kver."
+                refresh_initramfs "$kver"
+            fi
+        done
+        ;;
+esac
+
+exit 0

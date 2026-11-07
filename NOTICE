@@ -49,6 +49,14 @@ proyecto original. El detalle de cada cambio está en el historial de git.
 Ficheros nuevos de XappiensOS (GPLv3): build.sh, scripts/xappiens-hooks.sh,
 config/xappiens-os/, branding/, packaging/, docs/ROADMAP.md, NOTICE.
 
+packaging/xappiens-bt-sco-fix-dkms/ se distribuye bajo GPL-2.0-only, como el
+código del kernel Linux que contiene:
+  - upstream/<versión>/net/bluetooth: copia sin cambios del kernel Linux
+    (https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git).
+  - patches/0001-delay-pending-esco-cleanup.patch: del proyecto
+    linux-bluetooth-headset-mic-fix
+    (https://github.com/Mr-V1be/linux-bluetooth-headset-mic-fix), sin cambios.
+
 El logotipo de Xappiens (bombilla y tipografía pixelada) usado en branding/ y
 en el tema de Plymouth es de XappiensAI.
 

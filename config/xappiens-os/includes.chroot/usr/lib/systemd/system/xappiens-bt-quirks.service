@@ -1,0 +1,12 @@
+[Unit]
+Description=XappiensOS: ajustes de Bluetooth según el hardware
+Documentation=https://github.com/XappiensAI/XappiensOS
+Before=graphical.target display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/xappiens/bt-quirks
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
