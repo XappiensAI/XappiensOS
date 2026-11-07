@@ -1,0 +1,58 @@
+[Plymouth Theme]
+Name=XappiensOS
+Description=Pantalla de arranque de XappiensOS: la bombilla del logo se enciende y sus rayos giran mientras arranca el sistema.
+ModuleName=two-step
+
+# Imágenes generadas por branding/plymouth/make-theme.py (no editar a mano).
+# watermark.png es el logo estático y throbber-*.png la capa animada; tienen
+# el mismo tamaño y la misma alineación, así que Plymouth los superpone.
+[two-step]
+Font=Sans 11
+TitleFont=Sans 12
+ImageDir=/usr/share/plymouth/themes/xappiens
+HorizontalAlignment=.5
+VerticalAlignment=.5
+WatermarkHorizontalAlignment=.5
+WatermarkVerticalAlignment=.5
+DialogHorizontalAlignment=.5
+DialogVerticalAlignment=.82
+TitleHorizontalAlignment=.5
+TitleVerticalAlignment=.78
+Transition=none
+TransitionDuration=0.0
+BackgroundStartColor=0x1d1a24
+BackgroundEndColor=0x121016
+ProgressBarBackgroundColor=0x3a3546
+ProgressBarForegroundColor=0xe8c984
+DialogClearsFirmwareBackground=true
+MessageBelowAnimation=true
+
+[boot-up]
+UseEndAnimation=false
+
+[shutdown]
+UseEndAnimation=false
+UseFirmwareBackground=false
+
+[reboot]
+UseEndAnimation=false
+UseFirmwareBackground=false
+
+[updates]
+SuppressMessages=true
+ProgressBarShowPercentComplete=true
+UseProgressBar=true
+Title=Installing updates...
+SubTitle=Do not turn off your computer
+
+[system-upgrade]
+SuppressMessages=false
+ProgressBarShowPercentComplete=false
+UseProgressBar=true
+
+[firmware-upgrade]
+SuppressMessages=true
+ProgressBarShowPercentComplete=true
+UseProgressBar=true
+Title=Upgrading firmware...
+SubTitle=Do not turn off your computer

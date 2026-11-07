@@ -19,7 +19,7 @@ Pop!_OS y sus logotipos son marcas registradas de System76: una distro derivada
 que se publique debe sustituir su imagen.
 - [ ] Logo e iconos `distributor-logo-xappiens-os` (y cambiar `LOGO=` en os-release).
 - [ ] Tema de GRUB propio (sustituir el submódulo `data/grub-theme`).
-- [ ] Tema de Plymouth (pantalla de arranque).
+- [x] Tema de Plymouth (pantalla de arranque): `branding/plymouth/`.
 - [ ] Fondos de pantalla y ajustes por defecto de COSMIC.
 - [ ] Nombre/usuario de la sesión live y textos del instalador.
 

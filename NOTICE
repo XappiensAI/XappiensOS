@@ -47,7 +47,10 @@ proyecto original. El detalle de cada cambio está en el historial de git.
                     original se conserva en docs/README.pop-os-iso.md.
 
 Ficheros nuevos de XappiensOS (GPLv3): build.sh, scripts/xappiens-hooks.sh,
-config/xappiens-os/, docs/ROADMAP.md, NOTICE.
+config/xappiens-os/, branding/, docs/ROADMAP.md, NOTICE.
+
+El logotipo de Xappiens (bombilla y tipografía pixelada) usado en branding/ y
+en el tema de Plymouth es de XappiensAI.
 
 
 Marcas / Trademarks
