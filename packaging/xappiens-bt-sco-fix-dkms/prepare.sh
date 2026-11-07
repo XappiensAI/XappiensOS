@@ -21,8 +21,17 @@ fi
 # quedaría sin Bluetooth. Se comprueba aquí porque DKMS ejecuta este script en
 # toda compilación (también las automáticas al instalar un kernel nuevo).
 # Al construir la ISO se ignora: el estado que cuenta es el del equipo final.
-if [ "${XAPPIENS_IGNORE_SECURE_BOOT:-0}" != 1 ] && command -v mokutil >/dev/null 2>&1 &&
-    mokutil --sb-state 2>/dev/null | grep -qi 'SecureBoot enabled'; then
+secure_boot_enabled() {
+    if command -v mokutil >/dev/null 2>&1; then
+        mokutil --sb-state 2>/dev/null | grep -qi 'SecureBoot enabled'
+        return
+    fi
+    # Sin mokutil: variable EFI SecureBoot (4 bytes de atributos + 1 de valor).
+    var=/sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+    [ -r "$var" ] && [ "$(od -An -t u1 -j4 -N1 "$var" | tr -d ' ')" = 1 ]
+}
+
+if [ "${XAPPIENS_IGNORE_SECURE_BOOT:-0}" != 1 ] && secure_boot_enabled; then
     echo "xappiens-bt-sco-fix: Secure Boot activo; no se compila el módulo (se usa el original)." >&2
     exit 1
 fi
