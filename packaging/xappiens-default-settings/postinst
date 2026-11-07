@@ -1,0 +1,28 @@
+#!/bin/sh
+# xappiens-default-settings: convierte este Pop!_OS en XappiensOS.
+set -e
+
+refresh_initramfs() {
+    # En Pop!_OS, update-initramfs también copia el initramfs a la partición
+    # EFI (ganchos de kernelstub / systemd-boot), así que la nueva pantalla de
+    # arranque se ve en el siguiente reinicio.
+    if command -v update-initramfs >/dev/null 2>&1; then
+        update-initramfs -u -k all || echo "AVISO: no se pudo regenerar el initramfs" >&2
+    elif command -v dracut >/dev/null 2>&1; then
+        dracut --force --regenerate-all || echo "AVISO: no se pudo regenerar el initramfs" >&2
+    fi
+}
+
+case "$1" in
+    configure)
+        DISTRO_NAME="@DISTRO_NAME@" DISTRO_VERSION="@DISTRO_VERSION@" \
+        UBUNTU_CODE="@UBUNTU_CODE@" /usr/lib/xappiens/write-identity
+        /usr/lib/xappiens/apply-branding
+        /usr/lib/xappiens/set-plymouth-theme
+        refresh_initramfs
+        echo "Ahora este sistema es $(. /etc/os-release; echo "$PRETTY_NAME")."
+        echo "Reinicia para ver la nueva pantalla de arranque."
+        ;;
+esac
+
+exit 0

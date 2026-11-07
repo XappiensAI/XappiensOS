@@ -1,0 +1,48 @@
+#!/bin/sh
+# XappiensOS: activa (o, con --revert, desactiva) el tema de Plymouth
+# "xappiens". No regenera el initramfs: eso lo hace quien lo llama.
+#
+# La usan el hook de la ISO (hooks/chroot/20-plymouth.sh) y el paquete
+# xappiens-default-settings.
+set -eu
+
+THEMES=/usr/share/plymouth/themes
+THEME="$THEMES/xappiens/xappiens.plymouth"
+CONF=/etc/plymouth/plymouthd.conf
+MARK="# xappiens-default-settings"
+
+if [ "${1:-}" = "--revert" ]; then
+    update-alternatives --remove default.plymouth "$THEME" >/dev/null 2>&1 || true
+    if [ -f "$CONF" ]; then
+        sed -i -e "/^$MARK\$/,+1d" -e 's/^#xappiens#//' "$CONF"
+    fi
+    exit 0
+fi
+
+if [ ! -f "$THEME" ]; then
+    echo "ERROR: falta $THEME" >&2
+    exit 1
+fi
+
+if ! command -v plymouthd >/dev/null 2>&1; then
+    echo "AVISO: plymouth no está instalado; no se activa el tema." >&2
+    exit 0
+fi
+
+# Ubuntu/Pop eligen el tema con la alternativa default.plymouth. La fijamos en
+# modo manual para que una actualización del tema de Pop no la recupere.
+update-alternatives --install "$THEMES/default.plymouth" default.plymouth "$THEME" 300
+update-alternatives --set default.plymouth "$THEME"
+
+# Algunas herramientas (plymouth-populate-initrd, plymouth-set-default-theme)
+# leen el tema de plymouthd.conf. Si ya hay un Theme= lo comentamos (#xappiens#)
+# y añadimos el nuestro marcado, para poder deshacerlo con --revert.
+mkdir -p /etc/plymouth
+if [ -f "$CONF" ] && grep -q "^$MARK\$" "$CONF"; then
+    :
+elif [ -f "$CONF" ] && grep -q '^\[Daemon\]' "$CONF"; then
+    sed -i 's/^[[:space:]]*Theme[[:space:]]*=/#xappiens#&/' "$CONF"
+    sed -i "/^\[Daemon\]/a $MARK\nTheme=xappiens" "$CONF"
+else
+    printf '[Daemon]\n%s\nTheme=xappiens\n' "$MARK" >> "$CONF"
+fi

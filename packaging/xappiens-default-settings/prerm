@@ -1,0 +1,17 @@
+#!/bin/sh
+# xappiens-default-settings: al desinstalarlo, devuelve el sistema a Pop!_OS.
+# Se hace aquí (y no en postrm) porque los scripts de /usr/lib/xappiens
+# todavía existen.
+set -e
+
+case "$1" in
+    remove|deconfigure)
+        /usr/lib/xappiens/apply-branding --revert
+        /usr/lib/xappiens/set-plymouth-theme --revert
+        rm -f /etc/xappiens/os-release /etc/xappiens/lsb-release \
+              /etc/xappiens/issue /etc/xappiens/issue.net
+        rmdir /etc/xappiens 2>/dev/null || true
+        ;;
+esac
+
+exit 0

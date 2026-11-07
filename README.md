@@ -34,6 +34,8 @@ config/
     hooks/chroot/*.sh       # scripts ejecutados dentro del chroot del sistema
     hooks/live/*.sh         # scripts ejecutados dentro del chroot live
 scripts/xappiens-hooks.sh   # aplica overlays y hooks (llamado desde mk/chroot.mk)
+packaging/                  # paquete xappiens-default-settings (convertir sin reinstalar)
+branding/                   # fuentes de la marca (p. ej. pantalla de arranque)
 build.sh                    # punto de entrada para construir XappiensOS
 mk/, data/, scripts/        # sistema de construcción heredado de Pop!_OS
 docs/                       # documentación del proyecto
@@ -57,6 +59,28 @@ cd XappiensOS
 > `~/xappiens-build`; puedes cambiarlo con `XAPPIENS_BUILD_ROOT=/ruta/ext4`.
 
 Variantes: `NVIDIA=1 ./build.sh` genera la ISO con drivers NVIDIA.
+
+## Convertir un Pop!_OS ya instalado (sin reinstalar)
+
+El paquete `xappiens-default-settings` lleva el mismo contenido que la ISO
+(identidad del sistema y pantalla de arranque), así que convierte un
+Pop!_OS 26.04 en XappiensOS conservando tus archivos, aplicaciones y ajustes.
+
+1. **Actualiza a Pop!_OS 26.04** si aún tienes la 24.04, con la herramienta
+   oficial de Pop (Ajustes → Actualización del sistema, o
+   `pop-upgrade release upgrade`). Haz antes una copia de seguridad de `/home`.
+2. **Construye e instala el paquete** (construirlo no necesita `sudo`):
+
+   ```bash
+   packaging/build-deb.sh
+   sudo apt install ./build/packages/xappiens-default-settings_*_all.deb
+   ```
+
+3. Reinicia para ver la nueva pantalla de arranque.
+
+El paquete se niega a instalarse sobre otra versión de la base (p. ej. 24.04),
+porque `/etc/os-release` anunciaría una versión que no es la real. Para
+volver a Pop!_OS basta con `sudo apt remove xappiens-default-settings`.
 
 ## Seguir a Pop!_OS (upstream)
 

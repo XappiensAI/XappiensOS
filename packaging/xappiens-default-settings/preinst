@@ -1,0 +1,31 @@
+#!/bin/sh
+# xappiens-default-settings: sólo se instala sobre la base para la que está
+# hecho. Instalarlo sobre otra versión (p. ej. Pop!_OS 24.04 "noble") haría que
+# /etc/os-release anunciase una versión que no es la real, y APT y otras
+# herramientas usan ese nombre de versión para elegir repositorios.
+set -e
+
+base_codename() {
+    # /etc/pop-os/os-release es el de Pop, aunque /etc/os-release ya sea nuestro.
+    for f in /etc/pop-os/os-release /usr/lib/os-release; do
+        if [ -f "$f" ]; then
+            ( . "$f"; echo "${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}" )
+            return
+        fi
+    done
+}
+
+case "$1" in
+    install|upgrade)
+        base="$(base_codename)"
+        if [ "$base" != "@UBUNTU_CODE@" ] && [ "${XAPPIENS_FORCE:-0}" != 1 ]; then
+            echo "xappiens-default-settings es para Pop!_OS @DISTRO_VERSION@ (@UBUNTU_CODE@)," >&2
+            echo "pero este sistema es '${base:-desconocido}'." >&2
+            echo "Actualiza primero a Pop!_OS @DISTRO_VERSION@ y vuelve a instalarlo." >&2
+            echo "(Para forzarlo bajo tu responsabilidad: XAPPIENS_FORCE=1)" >&2
+            exit 1
+        fi
+        ;;
+esac
+
+exit 0

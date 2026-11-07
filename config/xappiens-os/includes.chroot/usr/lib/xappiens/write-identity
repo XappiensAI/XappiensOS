@@ -1,0 +1,43 @@
+#!/bin/sh
+# XappiensOS: escribe la identidad del sistema en /etc/xappiens/.
+#
+# La usan el hook de la ISO (hooks/chroot/10-identity.sh) y el paquete
+# xappiens-default-settings. Variables (todas opcionales):
+#   DISTRO_NAME, DISTRO_VERSION, UBUNTU_CODE
+#   XAPPIENS_ROOT  prefijo para escribir en otro árbol (pruebas)
+set -eu
+
+: "${DISTRO_NAME:=XappiensOS}"
+: "${DISTRO_VERSION:=26.04}"
+: "${UBUNTU_CODE:=resolute}"
+ROOT="${XAPPIENS_ROOT:-}"
+DIR="$ROOT/etc/xappiens"
+
+PRETTY="$DISTRO_NAME $DISTRO_VERSION LTS"
+
+mkdir -p "$DIR"
+
+cat > "$DIR/os-release" <<OSR
+NAME="$DISTRO_NAME"
+VERSION="$DISTRO_VERSION LTS"
+ID=xappiens
+ID_LIKE="pop ubuntu debian"
+PRETTY_NAME="$PRETTY"
+VERSION_ID="$DISTRO_VERSION"
+HOME_URL="https://github.com/XappiensAI/XappiensOS"
+SUPPORT_URL="https://github.com/XappiensAI/XappiensOS/discussions"
+BUG_REPORT_URL="https://github.com/XappiensAI/XappiensOS/issues"
+VERSION_CODENAME=$UBUNTU_CODE
+UBUNTU_CODENAME=$UBUNTU_CODE
+LOGO=distributor-logo-pop-os
+OSR
+
+cat > "$DIR/lsb-release" <<LSB
+DISTRIB_ID=XappiensOS
+DISTRIB_RELEASE=$DISTRO_VERSION
+DISTRIB_CODENAME=$UBUNTU_CODE
+DISTRIB_DESCRIPTION="$PRETTY"
+LSB
+
+printf '%s \\n \\l\n\n' "$PRETTY" > "$DIR/issue"
+printf '%s\n' "$PRETTY" > "$DIR/issue.net"

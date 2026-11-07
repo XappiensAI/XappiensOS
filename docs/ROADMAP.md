@@ -24,7 +24,9 @@ que se publique debe sustituir su imagen.
 - [ ] Nombre/usuario de la sesión live y textos del instalador.
 
 ## Hito 3 — Paquetes y repositorio propios
-- [ ] Paquete `xappiens-default-settings` (sustituye overlays/hooks por un .deb).
+- [x] Paquete `xappiens-default-settings` (`packaging/build-deb.sh`): convierte un
+      Pop!_OS 26.04 instalado en XappiensOS sin reinstalar. Comparte el overlay
+      con la ISO.
 - [ ] Paquete `xappiens-desktop` (metapaquete sobre `pop-desktop`).
 - [ ] Repositorio APT firmado de XappiensOS (p. ej. GitHub Pages + reprepro/aptly).
 - [ ] Clave de firma oficial del proyecto (sustituir la clave local de `build.sh`).

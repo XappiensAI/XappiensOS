@@ -1,0 +1,16 @@
+#!/bin/sh
+# xappiens-default-settings: tras desinstalarlo, regenera el initramfs para
+# que vuelva la pantalla de arranque de Pop!_OS.
+set -e
+
+case "$1" in
+    remove)
+        if command -v update-initramfs >/dev/null 2>&1; then
+            update-initramfs -u -k all || echo "AVISO: no se pudo regenerar el initramfs" >&2
+        elif command -v dracut >/dev/null 2>&1; then
+            dracut --force --regenerate-all || echo "AVISO: no se pudo regenerar el initramfs" >&2
+        fi
+        ;;
+esac
+
+exit 0

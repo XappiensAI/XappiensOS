@@ -6,19 +6,32 @@
 # nuestros en /etc/xappiens/ y re-apuntamos los enlaces. APT ejecuta este
 # script tras cada operación de dpkg (99xappiens-branding), de modo que una
 # actualización de pop-default-settings no devuelve la marca Pop!_OS.
+#
+# Con --revert devuelve los enlaces a /etc/pop-os/ (al desinstalar el paquete
+# xappiens-default-settings).
 set -e
 
 DIR=/etc/xappiens
-[ -f "$DIR/os-release" ] || exit 0
 
 relink() {
     target="$1"
     path="$2"
-    [ -e "$DIR/$(basename "$target")" ] || return 0
+    [ -e "$(dirname "$path")/$target" ] || return 0
     if [ "$(readlink "$path" 2>/dev/null)" != "$target" ]; then
         ln -sfn "$target" "$path"
     fi
 }
+
+if [ "${1:-}" = "--revert" ]; then
+    relink ../../etc/pop-os/os-release /usr/lib/os-release
+    relink pop-os/os-release           /etc/os-release
+    relink pop-os/lsb-release          /etc/lsb-release
+    relink pop-os/issue                /etc/issue
+    relink pop-os/issue.net            /etc/issue.net
+    exit 0
+fi
+
+[ -f "$DIR/os-release" ] || exit 0
 
 relink ../../etc/xappiens/os-release /usr/lib/os-release
 relink xappiens/os-release           /etc/os-release
