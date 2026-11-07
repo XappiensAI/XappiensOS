@@ -1,0 +1,73 @@
+XappiensOS
+==========
+
+Copyright (C) 2026 XappiensAI y colaboradores de XappiensOS.
+
+XappiensOS es software libre: puedes redistribuirlo y/o modificarlo bajo los
+términos de la GNU General Public License publicada por la Free Software
+Foundation, versión 3 de la licencia (ver LICENSE.md). XappiensOS es y será
+siempre software libre.
+
+
+Obra derivada / Derived work
+----------------------------
+
+Este repositorio es una obra derivada del sistema de construcción de ISOs de
+Pop!_OS:
+
+    Proyecto original: pop-os/iso — https://github.com/pop-os/iso
+    Copyright (C) 2017-2026 System76, Inc. y colaboradores de Pop!_OS
+    Licencia: GNU General Public License v3.0
+    Punto de partida del fork: commit b2dd20e (2026-09-18)
+
+This repository is a derived work of the Pop!_OS ISO build system
+(https://github.com/pop-os/iso, Copyright (C) 2017-2026 System76, Inc.),
+licensed under the GNU GPL v3.0 and modified by the XappiensOS project
+starting on 2026-11-07. The full history of the original project is preserved
+in this repository's git history.
+
+El submódulo data/grub-theme procede de system76/pop-grub-theme
+(Copyright System76, GPL-3.0) y se distribuye sin modificar.
+
+
+Modificaciones sobre ficheros originales (GPLv3, sección 5a)
+-------------------------------------------------------------
+
+Desde el 2026-11-07, el proyecto XappiensOS ha modificado estos ficheros del
+proyecto original. El detalle de cada cambio está en el historial de git.
+
+  mk/automatic.mk   BUILD pasa a ser configurable (BUILD?=) para construir
+                    fuera del directorio del repositorio.
+  mk/chroot.mk      Llamadas a scripts/xappiens-hooks.sh en las etapas
+                    "chroot" y "live" (overlays de ficheros y hooks).
+  deps.sh           Añadido rsync; eliminado qemu-efi (no disponible en
+                    Ubuntu 24.04 amd64).
+  .gitignore        Ignorados ficheros .iso, .img y .log.
+  README.md         Sustituido por el README de XappiensOS. El README
+                    original se conserva en docs/README.pop-os-iso.md.
+
+Ficheros nuevos de XappiensOS (GPLv3): build.sh, scripts/xappiens-hooks.sh,
+config/xappiens-os/, docs/ROADMAP.md, NOTICE.
+
+
+Marcas / Trademarks
+-------------------
+
+Pop!_OS y System76 son marcas de System76, Inc. Ubuntu es una marca de
+Canonical Ltd. XappiensOS es un proyecto independiente: no está afiliado a
+System76 ni a Canonical, ni cuenta con su respaldo. Estos nombres se usan
+únicamente para identificar el origen del software.
+
+Pop!_OS and System76 are trademarks of System76, Inc. Ubuntu is a trademark of
+Canonical Ltd. XappiensOS is an independent project, not affiliated with or
+endorsed by System76 or Canonical.
+
+
+Paquetes incluidos en las imágenes / Packages in the images
+-----------------------------------------------------------
+
+Las imágenes ISO de XappiensOS contienen paquetes de Ubuntu y de Pop!_OS, cada
+uno bajo su propia licencia, que se puede consultar en
+/usr/share/doc/<paquete>/copyright dentro del sistema. El código fuente de esos
+paquetes está disponible en los repositorios de origen de Ubuntu
+(archive.ubuntu.com) y de Pop!_OS (apt.pop-os.org, tipo deb-src).

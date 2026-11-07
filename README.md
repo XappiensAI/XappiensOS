@@ -75,6 +75,8 @@ sean sencillas. Todo lo demás vive en `config/xappiens-os/`.
 
 ## Licencia
 
-GPL-3.0, igual que el sistema de construcción de Pop!_OS del que deriva
-(ver [LICENSE.md](LICENSE.md)). Pop!_OS y System76 son marcas de System76, Inc.;
+XappiensOS es y será siempre **software libre**, bajo la GPL-3.0, igual que
+el sistema de construcción de Pop!_OS del que deriva (ver [LICENSE.md](LICENSE.md)).
+La atribución al proyecto original, los ficheros modificados y los avisos de
+marcas están en [NOTICE](NOTICE). Pop!_OS y System76 son marcas de System76, Inc.;
 XappiensOS es un proyecto independiente y no está afiliado a System76.
