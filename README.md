@@ -1,39 +1,80 @@
-# Pop!\_OS ISO production
+# XappiensOS
 
-This repository contains the tools necessary for building Pop!\_OS ISOs.
+**XappiensOS** es un sistema operativo libre basado en **Pop!_OS** y en
+**Ubuntu 26.04 LTS "Resolute Raccoon"**, con el escritorio **COSMIC**.
 
-## Requirements
+Queremos conservar lo mejor de Pop!_OS —ligereza, rendimiento, compatibilidad de
+hardware, un escritorio moderno— y construir encima nuestra propia identidad,
+ajustes y herramientas.
 
-- At least 40 GiB of free disk space (the build process consumes ~34 GiB).
+> Estado: **pre-alfa**. El sistema de construcción funciona sobre la base de
+> Pop!_OS 26.04; la marca propia está en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
-First you need to import the Pop!\_OS ISO signing key:
+## Base técnica
 
-```sh
-gpg --recv-keys 204DD8AEC33A7AFF
+| Componente   | Origen                                            |
+|--------------|---------------------------------------------------|
+| Base         | Ubuntu 26.04 LTS (`resolute`)                     |
+| Escritorio   | COSMIC (repositorios `resolute` de Pop!_OS)       |
+| Kernel       | `linux-system76` (7.x)                            |
+| Arranque     | systemd-boot + kernelstub (instalado), GRUB (ISO) |
+| Live/initrd  | dracut (`dmsquash-live`)                          |
+| Instalador   | `pop-installer` / distinst                        |
+| Construcción | Fork de [`pop-os/iso`](https://github.com/pop-os/iso) (debootstrap + Makefiles) |
+
+## Estructura
+
+```
+config/
+  pop-os/26.04.mk           # configuración original de Pop!_OS (upstream, no tocar)
+  xappiens-os/
+    26.04.mk                # nuestra configuración: hereda de Pop y sobrescribe
+    includes.chroot/        # ficheros que se copian al sistema instalado
+    includes.live/          # ficheros sólo para la sesión live (opcional)
+    hooks/chroot/*.sh       # scripts ejecutados dentro del chroot del sistema
+    hooks/live/*.sh         # scripts ejecutados dentro del chroot live
+scripts/xappiens-hooks.sh   # aplica overlays y hooks (llamado desde mk/chroot.mk)
+build.sh                    # punto de entrada para construir XappiensOS
+mk/, data/, scripts/        # sistema de construcción heredado de Pop!_OS
+docs/                       # documentación del proyecto
 ```
 
-Then you need to generate your own GPG key and upload it to a keyserver:
+## Construir la ISO
 
-```sh
-gpg --full-gen-key
-gpg --send-keys --keyserver keyserver.ubuntu.com ${YOUR_KEY_ID_HERE}
+Requisitos: un sistema basado en Ubuntu/Pop!_OS, `sudo`, ~25 GB libres en un
+sistema de ficheros Linux (ext4/btrfs/xfs) y conexión a internet.
+
+```bash
+git clone --recurse-submodules https://github.com/XappiensAI/XappiensOS.git
+cd XappiensOS
+./deps.sh          # instala debootstrap, xorriso, squashfs-tools, qemu...
+./build.sh         # construye la ISO en ~/xappiens-build/26.04/amd64/
+./build.sh qemu    # arranca la ISO en una máquina virtual
 ```
 
-While you are waiting for your key to be uploaded, install the dependencies:
+> **Importante:** la construcción **no puede** hacerse en NTFS/exFAT/FAT.
+> Si el repositorio está en un disco así, `build.sh` construye por defecto en
+> `~/xappiens-build`; puedes cambiarlo con `XAPPIENS_BUILD_ROOT=/ruta/ext4`.
 
-```sh
-./deps.sh
+Variantes: `NVIDIA=1 ./build.sh` genera la ISO con drivers NVIDIA.
+
+## Seguir a Pop!_OS (upstream)
+
+Este repositorio mantiene la historia de `pop-os/iso`, de modo que podemos
+incorporar sus mejoras:
+
+```bash
+git remote add upstream https://github.com/pop-os/iso.git   # una sola vez
+git fetch upstream
+git merge upstream/master
 ```
 
-## Building
+Nuestros cambios sobre ficheros de upstream se limitan a propósito a muy pocas
+líneas (`mk/automatic.mk`, `mk/chroot.mk`, `deps.sh`) para que las fusiones
+sean sencillas. Todo lo demás vive en `config/xappiens-os/`.
 
-The build is controlled by the Makefile. The following commands can be used:
-- `make` - Build an ISO at `build/17.10/pop-os.iso`
-- `make qemu_bios` - Run the ISO in BIOS mode
-- `make qemu_uefi` - Run the ISO in UEFI mode
-- `make clean` - Remove the build files, keeping the debootstrap
-- `make distclean` - Remove the debootstrap and other build files
+## Licencia
 
-The configuration can be changed in `mk/config.mk`.
-
-To rebuild the ISO when you have made changes, you can use `make clean && make`
+GPL-3.0, igual que el sistema de construcción de Pop!_OS del que deriva
+(ver [LICENSE.md](LICENSE.md)). Pop!_OS y System76 son marcas de System76, Inc.;
+XappiensOS es un proyecto independiente y no está afiliado a System76.

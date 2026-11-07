@@ -1,0 +1,2 @@
+// XappiensOS: reaplica la identidad del sistema tras cada operación de dpkg.
+DPkg::Post-Invoke { "if [ -x /usr/lib/xappiens/apply-branding ]; then /usr/lib/xappiens/apply-branding || true; fi"; };

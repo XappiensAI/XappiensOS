@@ -4,6 +4,7 @@ gpg --keyserver keyserver.ubuntu.com --recv-keys 204DD8AEC33A7AFF
 
 PACKAGES=(
     debootstrap
+    rsync
     germinate
     isolinux
     mtools
@@ -17,7 +18,6 @@ PACKAGES=(
 case "$(dpkg --print-architecture)" in
     amd64)
         PACKAGES+=(
-            qemu-efi
             grub-efi-amd64-signed
             grub-pc-bin
         )

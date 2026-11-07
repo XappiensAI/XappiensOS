@@ -125,6 +125,11 @@ $(BUILD)/chroot: $(BUILD)/debootstrap
 		CLEAN=1 \
 		/iso/chroot.sh"
 
+	# XappiensOS: apply filesystem overlay and run chroot hooks (see config/$(DISTRO_CODE)/)
+	DISTRO_CODE="$(DISTRO_CODE)" DISTRO_NAME="$(DISTRO_NAME)" DISTRO_VERSION="$(DISTRO_VERSION)" \
+	UBUNTU_CODE="$(UBUNTU_CODE)" UBUNTU_NAME="$(UBUNTU_NAME)" \
+		scripts/xappiens-hooks.sh chroot "$@.partial" "config/$(DISTRO_CODE)"
+
 	# Remove apt preferences
 	sudo rm "$@.partial/etc/apt/preferences.d/pop-iso"
 
@@ -186,6 +191,11 @@ $(BUILD)/live: $(BUILD)/chroot
 		AUTOREMOVE=1 \
 		CLEAN=1 \
 		/iso/chroot.sh"
+
+	# XappiensOS: apply filesystem overlay and run live hooks (see config/$(DISTRO_CODE)/)
+	DISTRO_CODE="$(DISTRO_CODE)" DISTRO_NAME="$(DISTRO_NAME)" DISTRO_VERSION="$(DISTRO_VERSION)" \
+	UBUNTU_CODE="$(UBUNTU_CODE)" UBUNTU_NAME="$(UBUNTU_NAME)" \
+		scripts/xappiens-hooks.sh live "$@.partial" "config/$(DISTRO_CODE)"
 
 	# Remove undesired casper script
 	if [ -e "$@.partial/usr/share/initramfs-tools/scripts/casper-bottom/01integrity_check" ]; then \

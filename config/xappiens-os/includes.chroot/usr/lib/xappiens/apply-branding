@@ -1,0 +1,27 @@
+#!/bin/sh
+# XappiensOS: apunta los ficheros de identidad del sistema a /etc/xappiens.
+#
+# pop-default-settings enlaza /etc/os-release, /etc/lsb-release, /etc/issue...
+# hacia /etc/pop-os/. En lugar de modificar sus ficheros, mantenemos los
+# nuestros en /etc/xappiens/ y re-apuntamos los enlaces. APT ejecuta este
+# script tras cada operación de dpkg (99xappiens-branding), de modo que una
+# actualización de pop-default-settings no devuelve la marca Pop!_OS.
+set -e
+
+DIR=/etc/xappiens
+[ -f "$DIR/os-release" ] || exit 0
+
+relink() {
+    target="$1"
+    path="$2"
+    [ -e "$DIR/$(basename "$target")" ] || return 0
+    if [ "$(readlink "$path" 2>/dev/null)" != "$target" ]; then
+        ln -sfn "$target" "$path"
+    fi
+}
+
+relink ../../etc/xappiens/os-release /usr/lib/os-release
+relink xappiens/os-release           /etc/os-release
+relink xappiens/lsb-release          /etc/lsb-release
+relink xappiens/issue                /etc/issue
+relink xappiens/issue.net            /etc/issue.net
