@@ -6,11 +6,6 @@ set -e
 NAME=xappiens-bt-sco-fix
 VER="@VERSION@"
 
-secure_boot_enabled() {
-    command -v mokutil >/dev/null 2>&1 &&
-        mokutil --sb-state 2>/dev/null | grep -qi 'SecureBoot enabled'
-}
-
 refresh_initramfs() {
     [ "${XAPPIENS_NO_INITRAMFS:-0}" = 1 ] && return 0
     if command -v update-initramfs >/dev/null 2>&1; then
@@ -24,13 +19,8 @@ case "$1" in
     configure)
         dkms add -m "$NAME" -v "$VER" >/dev/null 2>&1 || true
 
-        # Un módulo sin firmar con Secure Boot activo no se carga, y entonces
-        # el equipo se quedaría sin Bluetooth: en ese caso no lo instalamos.
-        if secure_boot_enabled; then
-            echo "AVISO: Secure Boot está activo; no se instala el módulo bluetooth corregido." >&2
-            exit 0
-        fi
-
+        # prepare.sh (PRE_BUILD) se niega a compilar con Secure Boot activo o
+        # sin fuente para el kernel: entonces se queda el módulo original.
         for kdir in /lib/modules/*; do
             kver="$(basename "$kdir")"
             [ -e "$kdir/build/include" ] || continue

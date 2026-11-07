@@ -25,6 +25,10 @@ case "$1" in
         fi
         systemctl enable xappiens-bt-quirks.service >/dev/null 2>&1 || true
         /usr/lib/xappiens/bt-quirks || true
+        if [ -L /etc/wireplumber/wireplumber.conf.d/50-xappiens-mt7925-hfp.conf ]; then
+            echo "Perfil de llamadas Bluetooth para MediaTek MT7925 activado:"
+            echo "  se aplica al volver a iniciar sesión (o: systemctl --user restart wireplumber)."
+        fi
         refresh_initramfs
         echo "Ahora este sistema es $(. /etc/os-release; echo "$PRETTY_NAME")."
         echo "Reinicia para ver la nueva pantalla de arranque."

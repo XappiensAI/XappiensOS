@@ -17,6 +17,16 @@ if [ ! -d "$src" ]; then
     exit 1
 fi
 
+# Un módulo sin firmar con Secure Boot activo no se carga y el equipo se
+# quedaría sin Bluetooth. Se comprueba aquí porque DKMS ejecuta este script en
+# toda compilación (también las automáticas al instalar un kernel nuevo).
+# Al construir la ISO se ignora: el estado que cuenta es el del equipo final.
+if [ "${XAPPIENS_IGNORE_SECURE_BOOT:-0}" != 1 ] && command -v mokutil >/dev/null 2>&1 &&
+    mokutil --sb-state 2>/dev/null | grep -qi 'SecureBoot enabled'; then
+    echo "xappiens-bt-sco-fix: Secure Boot activo; no se compila el módulo (se usa el original)." >&2
+    exit 1
+fi
+
 header="$ksrc/include/net/bluetooth/hci_core.h"
 expected="$(cat "upstream/$base/hci_conn_drop.sha256")"
 actual="$(sed -n '/^static inline void hci_conn_drop(/,/^}/p' "$header" | sha256sum | cut -d' ' -f1)"

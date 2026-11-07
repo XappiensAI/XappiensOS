@@ -27,15 +27,18 @@ proyecto (`abd93c85c866`, `8a5b0135d4a5`) ya vienen en el kernel 7.2.
 - DKMS compila `bluetooth.ko` para cada kernel instalado y para los que se
   instalen después; sólo sustituye el módulo central (`rfcomm`, `bnep`… siguen
   siendo los del kernel).
-- La fuente de `net/bluetooth` va en el paquete, copiada sin cambios de la
-  rama *stable* de kernel.org (`upstream/<versión>/`). Sólo se compila para
+- La fuente de `net/bluetooth` va en el paquete, copiada sin cambios del
+  kernel de System76 (`upstream/<versión>/`; la 7.2.15 es además idéntica a la
+  de kernel.org). Sólo se compila para
   esas versiones exactas: con otro kernel se queda el módulo original, para
   no instalar nunca un Bluetooth al que le falten las correcciones de
   seguridad de la versión nueva.
 - `prepare.sh` comprueba además que `hci_conn_drop()` de las cabeceras del
   kernel es idéntica a la de esa versión (el parche la sustituye).
-- Con Secure Boot activo no se instala (un módulo sin firmar no cargaría y el
-  equipo se quedaría sin Bluetooth).
+- Con Secure Boot activo no se compila, tampoco en las compilaciones
+  automáticas de kernels nuevos (un módulo sin firmar no cargaría y el equipo
+  se quedaría sin Bluetooth). Si firmas los módulos DKMS con tu propia clave
+  MOK, puedes forzarlo con `XAPPIENS_IGNORE_SECURE_BOOT=1`.
 
 ## Cuando Pop!_OS publique un kernel nuevo
 
@@ -44,7 +47,8 @@ packaging/xappiens-bt-sco-fix-dkms/fetch-source.sh 7.2.16
 packaging/build-deb.sh
 ```
 
-`fetch-source.sh` descarga sólo `net/bluetooth` de esa etiqueta de kernel.org.
+`fetch-source.sh` descarga sólo `net/bluetooth` de [pop-os/linux](https://github.com/pop-os/linux)
+(rama `master_resolute`) y comprueba que está en esa versión.
 Revisa que el parche sigue aplicando (`prepare.sh` falla si no) antes de
 publicar el paquete.
 

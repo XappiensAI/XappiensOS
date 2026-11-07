@@ -22,13 +22,25 @@ DISTRO_NAME="${DISTRO_NAME:-XappiensOS}"
 DISTRO_VERSION="${DISTRO_VERSION:-26.04}"
 UBUNTU_CODE="${UBUNTU_CODE:-resolute}"
 if [ -z "${VERSION:-}" ]; then
-    count="$(git -C "$REPO" rev-list --count HEAD)"
-    hash="$(git -C "$REPO" rev-parse --short HEAD)"
-    VERSION="$DISTRO_VERSION.0+git$count.$hash"
-    [ -z "$(git -C "$REPO" status --porcelain -- config packaging)" ] || VERSION="$VERSION.dirty"
+    if git -C "$REPO" rev-parse --git-dir >/dev/null 2>&1; then
+        count="$(git -C "$REPO" rev-list --count HEAD)"
+        hash="$(git -C "$REPO" rev-parse --short HEAD)"
+        VERSION="$DISTRO_VERSION.0+git$count.$hash"
+        [ -z "$(git -C "$REPO" status --porcelain -- config packaging)" ] || VERSION="$VERSION.dirty"
+    else
+        # Sin git (p. ej. desde un .tar): versión por fecha.
+        VERSION="$DISTRO_VERSION.0+$(date -u +%Y%m%d%H%M)"
+    fi
 fi
 OUT="${OUT:-$REPO/build/packages}"
-MAINTAINER="$(git -C "$REPO" config user.name) <$(git -C "$REPO" config user.email)>"
+# Sin identidad de git (CI, equipos nuevos) se usa la del proyecto.
+git_name="$(git -C "$REPO" config user.name 2>/dev/null || true)"
+git_email="$(git -C "$REPO" config user.email 2>/dev/null || true)"
+if [ -n "$git_name" ] && [ -n "$git_email" ]; then
+    MAINTAINER="${MAINTAINER:-$git_name <$git_email>}"
+else
+    MAINTAINER="${MAINTAINER:-XappiensOS <xappiensos@users.noreply.github.com>}"
+fi
 
 command -v dpkg-deb >/dev/null || { echo "Falta dpkg-deb" >&2; exit 1; }
 
@@ -132,8 +144,8 @@ DKMS_DIR="$ROOT/usr/src/xappiens-bt-sco-fix-$VERSION"
 mkdir -p "$ROOT/DEBIAN" "$DKMS_DIR"
 
 # Sólo se compila para las versiones del kernel cuya fuente va en el paquete.
-versions="$(cd "$SRC/upstream" && ls -1d [0-9]*.[0-9]*.[0-9]* | sort -V)"
-[ -n "$versions" ] || { echo "No hay fuentes en $SRC/upstream" >&2; exit 1; }
+versions="$(cd "$SRC/upstream" 2>/dev/null && ls -1d [0-9]*.[0-9]*.[0-9]* 2>/dev/null | sort -V || true)"
+[ -n "$versions" ] || { echo "No hay fuentes en $SRC/upstream (usa fetch-source.sh)" >&2; exit 1; }
 KERNEL_REGEX="^($(printf '%s\n' "$versions" | sed 's/\./\\./g' | paste -sd'|'))-"
 
 rsync -rlt --chmod=D755,F644 "$SRC/upstream" "$SRC/patches" "$DKMS_DIR/"

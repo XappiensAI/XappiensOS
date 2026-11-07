@@ -1,3 +1,5 @@
 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
 tag v7.2.15  commit 497791a0a96b866d90add64041c47acdff49cae6
 paths: net/bluetooth (copiado sin cambios)
+verificado: idéntico (56/56 ficheros, mismos hashes de git) a net/bluetooth
+de https://github.com/pop-os/linux master_resolute 54eb7ab4cce4, el kernel de Pop!_OS 26.04
