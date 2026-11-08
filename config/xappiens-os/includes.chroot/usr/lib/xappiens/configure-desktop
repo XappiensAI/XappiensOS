@@ -1,0 +1,123 @@
+#!/usr/bin/python3
+"""Añade los atajos de XappiensOS sin modificar los ficheros de COSMIC.
+
+cosmic-config elige el primer directorio v1 en XDG_DATA_DIRS, no cada fichero
+por separado. Se publica por eso una copia completa del directorio upstream.
+El enlace se cambia atómicamente; las preferencias del usuario tienen prioridad.
+"""
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import sys
+import tempfile
+
+
+SOURCE = Path("/usr/share/cosmic/com.system76.CosmicSettings.Shortcuts/v1")
+DESTINATION = Path("/etc/xappiens/cosmic/com.system76.CosmicSettings.Shortcuts/v1")
+MARKER = ".xappiens-generated"
+BINDING = ('    (modifiers: [Super], key: "v", '
+           'description: Some("Historial del portapapeles")): '
+           'Spawn("/usr/lib/xappiens/clipboard-history"),\n')
+
+
+def generated_target(destination):
+    if not destination.is_symlink():
+        if destination.exists():
+            raise ValueError(f"se conserva la configuración ajena: {destination}")
+        return None
+    target = destination.resolve()
+    if (target.parent != destination.parent.resolve()
+            or not target.name.startswith(f".{destination.name}-xappiens-")
+            or not (target / MARKER).is_file()):
+        raise ValueError(f"se conserva el enlace ajeno: {destination}")
+    try:
+        manifest = json.loads((target / MARKER).read_text(encoding="utf-8"))
+        files = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                 for p in target.iterdir() if p.name != MARKER and p.is_file()}
+        names = {p.name for p in target.iterdir()} - {MARKER}
+        if manifest != files or names != set(files):
+            raise ValueError("configuración generada modificada por el administrador")
+    except (OSError, json.JSONDecodeError, ValueError) as error:
+        raise ValueError(f"se conservan los cambios del administrador en {destination}") from error
+    return target
+
+
+def configure(source, destination):
+    original = (source / "defaults").read_text(encoding="utf-8").rstrip()
+    if not original.startswith("{") or not original.endswith("}"):
+        raise ValueError("ha cambiado el formato de los atajos de COSMIC")
+    body = original[:-1].rstrip()
+    if not body.endswith(("{", ",")):
+        body += ","
+    defaults = body + "\n" + BINDING + "}\n"
+    previous = generated_target(destination)
+    # No hay cambios: evita crear generaciones y modificar el enlace en cada apt.
+    source_files = {p.name: p.read_bytes() for p in source.iterdir() if p.is_file()}
+    source_files["defaults"] = defaults.encode("utf-8")
+    if previous and all((previous / name).is_file()
+                        and (previous / name).read_bytes() == data
+                        for name, data in source_files.items()) \
+            and {p.name for p in previous.iterdir()} == set(source_files) | {MARKER}:
+        return
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix=f".{destination.name}-xappiens-",
+                                 dir=destination.parent))
+    link = stage.with_name(stage.name + ".link")
+    try:
+        stage.chmod(0o755)
+        for name, data in source_files.items():
+            (stage / name).write_bytes(data)
+            (stage / name).chmod(0o644)
+        manifest = {name: hashlib.sha256(data).hexdigest()
+                    for name, data in source_files.items()}
+        (stage / MARKER).write_text(json.dumps(manifest, sort_keys=True) + "\n",
+                                    encoding="utf-8")
+        link.symlink_to(stage.name)
+        os.replace(link, destination)
+    except Exception:
+        link.unlink(missing_ok=True)
+        shutil.rmtree(stage)
+        raise
+    if previous:
+        shutil.rmtree(previous)
+
+
+def remove(destination):
+    previous = generated_target(destination)
+    if previous:
+        destination.unlink()
+        shutil.rmtree(previous)
+    # Sólo directorios vacíos del espacio propio, nunca archivos del administrador.
+    for directory in (destination.parent, destination.parent.parent):
+        try:
+            directory.rmdir()
+        except OSError:
+            pass
+
+
+def main():
+    # Los valores por defecto tienen que poder leerse desde cualquier cuenta.
+    os.umask(0o022)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--source", type=Path, default=SOURCE)
+    parser.add_argument("--destination", type=Path, default=DESTINATION)
+    parser.add_argument("--remove", action="store_true")
+    args = parser.parse_args()
+    try:
+        if args.remove:
+            remove(args.destination)
+        else:
+            configure(args.source, args.destination)
+    except (OSError, ValueError) as error:
+        print(f"AVISO: no se pudieron actualizar los atajos de XappiensOS: {error}",
+              file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

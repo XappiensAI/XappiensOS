@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+"""Extiende las rutas de datos del gestor de sesión sin duplicar el prefijo."""
+
+import os
+import shlex
+
+
+data_dirs = os.environ.get("XDG_DATA_DIRS") or "/usr/local/share:/usr/share"
+if "/etc/xappiens" not in data_dirs.split(":"):
+    data_dirs = "/etc/xappiens:" + data_dirs
+print("XDG_DATA_DIRS=" + shlex.quote(data_dirs))

@@ -10,9 +10,8 @@ DISTRO_NAME=XappiensOS
 # Las etiquetas de volumen se recalculan solas a partir de DISTRO_NAME
 # (XappiensOS_26.04_amd64, ..._NVIDIA, ..._HP).
 
-# Paquetes propios de XappiensOS que se instalarán tras los de Pop.
-# (Vacío hasta que tengamos nuestro repositorio APT; ver docs/ROADMAP.md)
-XAPPIENS_PKGS=
+# Dependencias de las herramientas que añade el overlay de XappiensOS.
+XAPPIENS_PKGS=python3-gi gir1.2-gtk-3.0 gir1.2-gtklayershell-0.1 wl-clipboard libwayland-client0 libxkbcommon0 xkb-data
 POST_DISTRO_PKGS+=$(XAPPIENS_PKGS)
 
 # La personalización (identidad del sistema, ajustes por defecto, etc.) se

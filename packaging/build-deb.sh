@@ -101,8 +101,9 @@ EOF
 PKG=xappiens-default-settings
 ROOT="$STAGE/$PKG"
 mkdir -p "$ROOT/DEBIAN"
-rsync -rlt --chmod=D755,F644 "$OVERLAY/" "$ROOT/"
+rsync -rlt --chmod=D755,F644 --exclude='__pycache__/' --exclude='*.py[co]' "$OVERLAY/" "$ROOT/"
 chmod 0755 "$ROOT"/usr/lib/xappiens/*
+chmod 0755 "$ROOT/usr/lib/systemd/user-environment-generators/90-xappiens-desktop"
 
 mkdir -p "$ROOT/usr/share/doc/$PKG"
 cat > "$ROOT/usr/share/doc/$PKG/copyright" <<EOF
@@ -125,12 +126,12 @@ EOF
 
 maintainer_scripts "$REPO/packaging/$PKG" "$ROOT"
 finish "$PKG" "$ROOT" \
-    "pop-default-settings, plymouth, initramfs-tools | dracut" \
+    "pop-default-settings, plymouth, initramfs-tools | dracut, python3-gi, gir1.2-gtk-3.0, gir1.2-gtklayershell-0.1, wl-clipboard, libwayland-client0, libxkbcommon0, xkb-data" \
     "identidad y ajustes por defecto de $DISTRO_NAME" \
 " Convierte un Pop!_OS $DISTRO_VERSION instalado en $DISTRO_NAME sin reinstalar:
  nombre y versión del sistema (os-release, lsb-release, issue), pantalla de
  arranque propia (tema de Plymouth \"xappiens\") y ajustes de Bluetooth según
- el hardware.
+ el hardware, e historial del portapapeles de sesión con Super+V.
  .
  Al desinstalarlo, el sistema vuelve a identificarse como Pop!_OS."
 

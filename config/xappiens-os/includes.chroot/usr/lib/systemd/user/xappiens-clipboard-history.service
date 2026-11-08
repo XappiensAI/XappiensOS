@@ -1,0 +1,12 @@
+[Unit]
+Description=Historial del portapapeles de sesión de XappiensOS
+BindsTo=cosmic-session.target
+PartOf=cosmic-session.target
+After=cosmic-session.target
+
+[Service]
+Type=dbus
+BusName=org.xappiens.ClipboardHistory
+ExecStart=/usr/lib/xappiens/clipboard-history --daemon
+Restart=on-failure
+RestartSec=2

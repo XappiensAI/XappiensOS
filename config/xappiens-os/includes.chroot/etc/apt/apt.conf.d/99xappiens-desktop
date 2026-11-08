@@ -1,0 +1,2 @@
+// Conserva los nuevos atajos de COSMIC al actualizar sus paquetes.
+DPkg::Post-Invoke { "if [ -x /usr/lib/xappiens/configure-desktop ]; then /usr/lib/xappiens/configure-desktop || true; fi"; };

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Historial del portapapeles de XappiensOS
+Comment=Conserva el texto y las imágenes copiados durante esta sesión
+Exec=/usr/bin/systemctl --user start xappiens-clipboard-history.service
+TryExec=/usr/lib/xappiens/clipboard-history
+OnlyShowIn=COSMIC;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

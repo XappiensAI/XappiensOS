@@ -1,0 +1,246 @@
+#!/usr/bin/python3
+"""Send Shift+Insert through Wayland with a complete, standard XKB keymap.
+
+Uses the virtual-keyboard protocol already provided by COSMIC. No root,
+input-device access, clipboard data, temporary files or physical layout changes
+are needed. The compositor drops this virtual device on disconnect.
+"""
+
+import ctypes as C
+import os
+import sys
+import time
+
+
+class WlInterface(C.Structure):
+    pass
+
+
+InterfacePointer = C.POINTER(WlInterface)
+
+
+class WlMessage(C.Structure):
+    _fields_ = [
+        ("name", C.c_char_p),
+        ("signature", C.c_char_p),
+        ("types", C.POINTER(InterfacePointer)),
+    ]
+
+
+WlInterface._fields_ = [
+    ("name", C.c_char_p),
+    ("version", C.c_int),
+    ("method_count", C.c_int),
+    ("methods", C.POINTER(WlMessage)),
+    ("event_count", C.c_int),
+    ("events", C.POINTER(WlMessage)),
+]
+
+
+class XkbRuleNames(C.Structure):
+    _fields_ = [(name, C.c_char_p)
+                for name in ("rules", "model", "layout", "variant", "options")]
+
+
+GlobalCallback = C.CFUNCTYPE(
+    None, C.c_void_p, C.c_void_p, C.c_uint, C.c_char_p, C.c_uint,
+)
+RemoveCallback = C.CFUNCTYPE(None, C.c_void_p, C.c_void_p, C.c_uint)
+
+
+def standard_keymap():
+    """Return an expanded US/evdev map and its Shift modifier bit."""
+    xkb = C.CDLL("libxkbcommon.so.0")
+    libc = C.CDLL(None)
+    xkb.xkb_context_new.argtypes = [C.c_int]
+    xkb.xkb_context_new.restype = C.c_void_p
+    xkb.xkb_context_unref.argtypes = [C.c_void_p]
+    xkb.xkb_keymap_new_from_names.argtypes = [
+        C.c_void_p, C.POINTER(XkbRuleNames), C.c_int,
+    ]
+    xkb.xkb_keymap_new_from_names.restype = C.c_void_p
+    xkb.xkb_keymap_unref.argtypes = [C.c_void_p]
+    xkb.xkb_keymap_get_as_string.argtypes = [C.c_void_p, C.c_int]
+    xkb.xkb_keymap_get_as_string.restype = C.c_void_p
+    xkb.xkb_keymap_mod_get_index.argtypes = [C.c_void_p, C.c_char_p]
+    xkb.xkb_keymap_mod_get_index.restype = C.c_uint
+    libc.free.argtypes = [C.c_void_p]
+
+    # NO_ENVIRONMENT_NAMES: do not inherit XKB_DEFAULT_* from the calling app.
+    context = xkb.xkb_context_new(2)
+    if not context:
+        raise RuntimeError("no se pudo crear el contexto XKB")
+    keymap = text = None
+    try:
+        names = XkbRuleNames(b"evdev", b"pc105", b"us", b"", b"")
+        keymap = xkb.xkb_keymap_new_from_names(context, C.byref(names), 0)
+        if not keymap:
+            raise RuntimeError("no se pudo cargar el mapa de teclado evdev")
+        shift = xkb.xkb_keymap_mod_get_index(keymap, b"Shift")
+        if shift >= 32:
+            raise RuntimeError("el mapa XKB no contiene el modificador Shift")
+        text = xkb.xkb_keymap_get_as_string(keymap, 1)  # XKB_KEYMAP_FORMAT_TEXT_V1
+        if not text:
+            raise RuntimeError("no se pudo generar el mapa XKB")
+        return C.string_at(text) + b"\0", 1 << shift
+    finally:
+        if text:
+            libc.free(text)
+        if keymap:
+            xkb.xkb_keymap_unref(keymap)
+        xkb.xkb_context_unref(context)
+
+
+def send_paste():
+    keymap, shift = standard_keymap()
+    wayland = C.CDLL("libwayland-client.so.0")
+    wayland.wl_display_connect.argtypes = [C.c_char_p]
+    wayland.wl_display_connect.restype = C.c_void_p
+    wayland.wl_display_disconnect.argtypes = [C.c_void_p]
+    wayland.wl_display_roundtrip.argtypes = [C.c_void_p]
+    wayland.wl_display_roundtrip.restype = C.c_int
+    wayland.wl_proxy_add_listener.argtypes = [
+        C.c_void_p, C.POINTER(C.c_void_p), C.c_void_p,
+    ]
+    wayland.wl_proxy_add_listener.restype = C.c_int
+    wayland.wl_proxy_destroy.argtypes = [C.c_void_p]
+    # The remaining variadic arguments are explicitly wrapped ctypes values;
+    # otherwise pointer arguments could be truncated to the default C int.
+    wayland.wl_proxy_marshal_flags.argtypes = [
+        C.c_void_p, C.c_uint, InterfacePointer, C.c_uint, C.c_uint,
+    ]
+    wayland.wl_proxy_marshal_flags.restype = C.c_void_p
+    marshal = wayland.wl_proxy_marshal_flags
+
+    registry_interface = WlInterface.in_dll(wayland, "wl_registry_interface")
+    seat_interface = WlInterface.in_dll(wayland, "wl_seat_interface")
+    keyboard_methods = (WlMessage * 4)(
+        WlMessage(b"keymap", b"uhu", None),
+        WlMessage(b"key", b"uuu", None),
+        WlMessage(b"modifiers", b"uuuu", None),
+        WlMessage(b"destroy", b"", None),
+    )
+    keyboard_interface = WlInterface(
+        b"zwp_virtual_keyboard_v1", 1, 4, keyboard_methods, 0, None,
+    )
+    create_types = (InterfacePointer * 2)(
+        C.pointer(seat_interface), C.pointer(keyboard_interface),
+    )
+    manager_methods = (WlMessage * 1)(
+        WlMessage(b"create_virtual_keyboard", b"on", create_types),
+    )
+    manager_interface = WlInterface(
+        b"zwp_virtual_keyboard_manager_v1", 1, 1, manager_methods, 0, None,
+    )
+    # Keep protocol descriptions, listeners and callbacks alive until disconnect.
+    globals_found = {}
+
+    @GlobalCallback
+    def global_added(_data, _registry, name, interface, version):
+        globals_found.setdefault(interface, (name, version))
+
+    @RemoveCallback
+    def global_removed(_data, _registry, _name):
+        pass
+
+    listener = (C.c_void_p * 2)(
+        C.cast(global_added, C.c_void_p).value,
+        C.cast(global_removed, C.c_void_p).value,
+    )
+
+    display = wayland.wl_display_connect(None)
+    if not display:
+        raise RuntimeError("no se pudo conectar con la sesión Wayland")
+
+    def roundtrip():
+        if wayland.wl_display_roundtrip(display) < 0:
+            raise RuntimeError("la sesión Wayland rechazó el teclado virtual")
+
+    def bind(registry, interface):
+        advertised = globals_found.get(interface.name)
+        if not advertised:
+            raise RuntimeError("COSMIC no ofrece " + interface.name.decode())
+        return marshal(
+            registry, 0, C.pointer(interface), 1, 0,
+            C.c_uint(advertised[0]), C.c_char_p(interface.name), C.c_uint(1),
+            C.c_void_p(),
+        )
+
+    keyboard = registry = manager = seat = None
+    fd = None
+    try:
+        # wl_display.get_registry(new_id)
+        registry = marshal(
+            display, 1, C.pointer(registry_interface), 1, 0, C.c_void_p(),
+        )
+        if not registry or wayland.wl_proxy_add_listener(registry, listener, None):
+            raise RuntimeError("no se pudo consultar la sesión Wayland")
+        roundtrip()
+        seat = bind(registry, seat_interface)
+        manager = bind(registry, manager_interface)
+        if not seat or not manager:
+            raise RuntimeError("no se pudo crear el teclado virtual")
+        keyboard = marshal(
+            manager, 0, C.pointer(keyboard_interface), 1, 0,
+            C.c_void_p(seat), C.c_void_p(),
+        )
+        if not keyboard:
+            raise RuntimeError("no se pudo crear el teclado virtual")
+        fd = os.memfd_create("xappiens-paste-keymap", os.MFD_CLOEXEC)
+        with os.fdopen(fd, "wb", closefd=False) as memory:
+            memory.write(keymap)
+        marshal(keyboard, 0, None, 1, 0, C.c_uint(1), C.c_int(fd),
+                C.c_uint(len(keymap)))
+        roundtrip()
+        os.close(fd)
+        fd = None
+
+        def key(code, pressed):
+            stamp = int(time.monotonic() * 1000) & 0xFFFFFFFF
+            marshal(keyboard, 1, None, 1, 0, C.c_uint(stamp),
+                    C.c_uint(code), C.c_uint(pressed))
+
+        def modifiers(mask):
+            marshal(keyboard, 2, None, 1, 0, C.c_uint(mask), C.c_uint(0),
+                    C.c_uint(0), C.c_uint(0))
+
+        # Linux evdev codes: Left Shift=42 and Insert=110 (XKB codes +8).
+        key(42, 1)
+        modifiers(shift)
+        roundtrip()
+        key(110, 1)
+        roundtrip()
+        time.sleep(0.02)
+        key(110, 0)
+        key(42, 0)
+        modifiers(0)
+        roundtrip()
+        # Let clients process the chord before removal of this keyboard.
+        time.sleep(0.02)
+        marshal(keyboard, 3, None, 1, 1)  # WL_MARSHAL_FLAG_DESTROY
+        keyboard = None
+        roundtrip()
+    finally:
+        if fd is not None:
+            os.close(fd)
+        # Disconnect also releases pressed keys if an error interrupts the chord.
+        for proxy in (keyboard, manager, seat, registry):
+            if proxy:
+                wayland.wl_proxy_destroy(proxy)
+        wayland.wl_display_disconnect(display)
+
+
+def main():
+    if len(sys.argv) != 1:
+        print("Uso: paste-key", file=sys.stderr)
+        return 1
+    try:
+        send_paste()
+    except (OSError, RuntimeError, ValueError) as error:
+        print(f"No se pudo enviar el pegado: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

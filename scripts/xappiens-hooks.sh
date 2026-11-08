@@ -19,7 +19,7 @@ if [ -d "$OVERLAY" ]; then
     # Permisos normalizados (755 dirs / 644 ficheros): el repositorio puede
     # estar en un sistema de ficheros sin permisos POSIX (NTFS, exFAT...).
     # Los hooks se encargan de marcar como ejecutable lo que lo necesite.
-    sudo rsync -rlpt --chmod=D755,F644 "$OVERLAY/" "$ROOT/"
+    sudo rsync -rlpt --chmod=D755,F644 --exclude='__pycache__/' --exclude='*.py[co]' "$OVERLAY/" "$ROOT/"
 fi
 
 if [ -d "$HOOKS" ]; then

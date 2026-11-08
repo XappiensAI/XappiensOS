@@ -2,3 +2,5 @@ build
 *.iso
 *.img
 *.log
+__pycache__/
+*.py[co]
