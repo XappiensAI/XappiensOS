@@ -86,7 +86,7 @@ Pop!_OS 26.04 en XappiensOS conservando tus archivos, aplicaciones y ajustes.
    ```
 
    - `xappiens-default-settings`: identidad, pantalla de arranque, historial del
-     portapapeles y ajustes de Bluetooth según el hardware (perfil de llamadas
+     portapapeles, [atajos personalizados](keyboard-shortcuts.md) y ajustes de Bluetooth según el hardware (perfil de llamadas
      para MediaTek MT7925).
    - `xappiens-bt-sco-fix-dkms`: módulo bluetooth corregido para el micrófono
      de auriculares que se queda mudo tras la primera llamada

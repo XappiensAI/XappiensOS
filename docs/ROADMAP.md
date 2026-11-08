@@ -42,6 +42,10 @@ que se publique debe sustituir su imagen.
 ## Hito 5 — Lo que nos hace distintos
 - [x] Historial del portapapeles de sesión: diálogo con Super + V, texto e
       imágenes, incluido en la ISO y en `xappiens-default-settings`.
+- [x] Editor de atajos personalizados: pegar texto o ejecutar comandos sin
+      servicios privilegiados. Pegado validado en COSMIC aislado con teclado español.
+- [ ] Validar los atajos personalizados en la ISO instalada y ampliar la
+      comprobación entre aplicaciones ([guía](keyboard-shortcuts.md)).
 - [ ] Validar el historial en la ISO instalada, incluidas varias pantallas,
       pegado entre aplicaciones y cierre de sesión ([pruebas](clipboard-history.md)).
 - [ ] Definir las aplicaciones y personalizaciones propias de XappiensOS.

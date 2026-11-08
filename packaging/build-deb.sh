@@ -131,7 +131,8 @@ finish "$PKG" "$ROOT" \
 " Convierte un Pop!_OS $DISTRO_VERSION instalado en $DISTRO_NAME sin reinstalar:
  nombre y versión del sistema (os-release, lsb-release, issue), pantalla de
  arranque propia (tema de Plymouth \"xappiens\") y ajustes de Bluetooth según
- el hardware, e historial del portapapeles de sesión con Super+V.
+ el hardware, historial del portapapeles de sesión con Super+V y acciones
+ personalizadas de teclado para pegar textos o ejecutar comandos en COSMIC.
  .
  Al desinstalarlo, el sistema vuelve a identificarse como Pop!_OS."
 

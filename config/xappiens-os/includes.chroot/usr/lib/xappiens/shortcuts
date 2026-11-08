@@ -1,0 +1,40 @@
+#!/usr/bin/python3
+"""Configure custom keyboard actions, or execute one from COSMIC."""
+
+import argparse
+import importlib.machinery
+import importlib.util
+from pathlib import Path
+import subprocess
+import sys
+
+from xappiens_shortcuts import Manager, ShortcutError
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Atajos personalizados de XappiensOS")
+    parser.add_argument("--run", metavar="ID", help="ejecutar una acción guardada")
+    args = parser.parse_args()
+    try:
+        if args.run:
+            Manager().run_action(args.run)
+            return 0
+        loader = importlib.machinery.SourceFileLoader("shortcuts_ui", str(Path(__file__).with_name("shortcuts-ui.py")))
+        spec = importlib.util.spec_from_loader(loader.name, loader)
+        module = importlib.util.module_from_spec(spec)
+        loader.exec_module(module)
+        return module.main()
+    except (ShortcutError, OSError) as error:
+        message = str(error) if isinstance(error, ShortcutError) else "No se pudo acceder a la configuración de atajos."
+        print(message, file=sys.stderr)
+        if args.run:
+            try:
+                subprocess.run(["notify-send", "Atajos personalizados", message],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2)
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

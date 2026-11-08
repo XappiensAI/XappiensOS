@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Custom Shortcuts
+Name[es]=Atajos personalizados
+Comment=Paste saved text or run commands with your own keyboard shortcuts
+Comment[es]=Pega textos guardados o ejecuta comandos con tus combinaciones de teclas
+Exec=/usr/lib/xappiens/shortcuts
+Icon=preferences-desktop-keyboard-shortcuts
+Terminal=false
+Categories=Settings;DesktopSettings;
+Keywords=keyboard;shortcut;hotkey;paste;text;
+Keywords[es]=teclado;atajo;pegar;texto;
+StartupNotify=true

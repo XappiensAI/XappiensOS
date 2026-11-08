@@ -35,6 +35,7 @@ Built by **[Xappiens](https://xappiens.com)**, developed in the open, and shared
 | | Feature | What it does |
 |---|---|---|
 | 📋 | **Clipboard history** | **Super + V** opens the text and images copied during the session. Pick an entry to paste it into the previous app. |
+| ⌨️ | **Custom shortcuts** | Assign a key combination to paste saved text or run a command, with a built-in editor. [Guide](docs/keyboard-shortcuts.md). |
 | 💡 | **Our own identity** | System identity and a custom Plymouth boot screen, shared by the ISO and the settings package. |
 | 🎧 | **Targeted Bluetooth fixes** | Hardware-specific audio settings and a DKMS fix for the headset microphone issue documented [here](packaging/xappiens-bt-sco-fix-dkms/README.md). |
 | 🪐 | **COSMIC desktop** | A Wayland desktop on the Pop!_OS foundation, with the upstream build history preserved. |
@@ -80,6 +81,7 @@ Un proyecto de **[Xappiens](https://xappiens.com)**, desarrollado en abierto y c
 | | Función | Qué aporta |
 |---|---|---|
 | 📋 | **Historial del portapapeles** | **Super + V** muestra el texto y las imágenes copiados durante la sesión. Selecciona una entrada para pegarla en la aplicación anterior. |
+| ⌨️ | **Atajos personalizados** | Asocia combinaciones de teclas a textos guardados o comandos con el editor incluido. [Guía](docs/keyboard-shortcuts.md). |
 | 💡 | **Identidad propia** | Identidad del sistema y pantalla de arranque Plymouth, compartidas por la ISO y el paquete de ajustes. |
 | 🎧 | **Correcciones de Bluetooth** | Ajustes de audio según el hardware y un módulo DKMS para el fallo del micrófono de auriculares descrito [aquí](packaging/xappiens-bt-sco-fix-dkms/README.md). |
 | 🪐 | **Escritorio COSMIC** | Un escritorio Wayland sobre la base de Pop!_OS, conservando la historia del sistema de construcción original. |
