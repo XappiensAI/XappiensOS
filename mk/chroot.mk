@@ -9,7 +9,8 @@ $(BUILD)/debootstrap:
 		--arch=$(DISTRO_ARCH) \
 		"$(UBUNTU_CODE)" \
 		"$@.partial" \
-		"$(UBUNTU_MIRROR)"; \
+		"$(UBUNTU_MIRROR)" \
+		$(DEBOOTSTRAP_SCRIPT); \
 	then \
 		cat "$@.partial/debootstrap/debootstrap.log"; \
 		false; \
@@ -80,7 +81,7 @@ $(BUILD)/chroot: $(BUILD)/debootstrap
 	# Add release URIs
 	if [ -n "${RELEASE_URI}" ]; then \
 		sudo $(CHROOT) "$@.partial" /bin/bash -e -c \
-			"FILENAME=\"/etc/apt/sources.list.d/${DISTRO_CODE}-release.sources\" \
+			"FILENAME=\"/etc/apt/sources.list.d/$(REPO_CODE)-release.sources\" \
 			NAME=\"${DISTRO_NAME} Release Sources\" \
 			TYPES=\"deb deb-src\" \
 			URIS=\"${RELEASE_URI}\" \
@@ -107,7 +108,7 @@ $(BUILD)/chroot: $(BUILD)/debootstrap
 	# Add extra URIS
 	if [ -n "${APPS_URI}" ]; then \
 		sudo $(CHROOT) "$@.partial" /bin/bash -e -c \
-			"FILENAME=\"/etc/apt/sources.list.d/${DISTRO_CODE}-apps.sources\" \
+			"FILENAME=\"/etc/apt/sources.list.d/$(REPO_CODE)-apps.sources\" \
 			NAME=\"${DISTRO_NAME} Applications\" \
 			TYPES=\"deb\" \
 			URIS=\"${APPS_URI}\" \

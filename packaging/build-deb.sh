@@ -6,9 +6,12 @@
 #                               config/xappiens-os/includes.chroot)
 #   xappiens-bt-sco-fix-dkms    módulo bluetooth corregido (micrófono de
 #                               auriculares mudo tras la primera llamada)
+#   xappiens-installer-branding marca de XappiensOS en el instalador de la
+#                               sesión live (sólo para la ISO)
 #
 #   packaging/build-deb.sh
-#   sudo apt install ./build/packages/*.deb
+#   sudo apt install ./build/packages/xappiens-default-settings_*.deb \
+#                    ./build/packages/xappiens-bt-sco-fix-dkms_*.deb
 #
 # No necesita sudo. build.sh lo ejecuta antes de construir la ISO.
 # Variables opcionales: DISTRO_NAME, DISTRO_VERSION, UBUNTU_CODE, VERSION, OUT.
@@ -122,6 +125,12 @@ Copyright: 2026 XappiensAI
 Comment: Logotipo de Xappiens (bombilla y tipografía pixelada). Generado por
  branding/plymouth/make-theme.py en el repositorio de XappiensOS.
 License: GPL-3.0
+
+Files: usr/share/icons/hicolor/scalable/apps/distributor-logo-xappiens.svg
+ usr/share/pixmaps/faces/xappiens.png
+Copyright: 2026 XappiensAI
+Comment: Logotipo de Xappiens. Generado por branding/installer/make-installer.py.
+License: GPL-3.0
 EOF
 
 maintainer_scripts "$REPO/packaging/$PKG" "$ROOT"
@@ -130,11 +139,47 @@ finish "$PKG" "$ROOT" \
     "identidad y ajustes por defecto de $DISTRO_NAME" \
 " Convierte un Pop!_OS $DISTRO_VERSION instalado en $DISTRO_NAME sin reinstalar:
  nombre y versión del sistema (os-release, lsb-release, issue), pantalla de
- arranque propia (tema de Plymouth \"xappiens\") y ajustes de Bluetooth según
+ arranque propia (tema de Plymouth \"xappiens\"), logo de la distribución,
+ ajustes de Bluetooth según
  el hardware, historial del portapapeles de sesión con Super+V y acciones
  personalizadas de teclado para pegar textos o ejecutar comandos en COSMIC.
  .
  Al desinstalarlo, el sistema vuelve a identificarse como Pop!_OS."
+
+# --------------------------------------------------------------------------
+# xappiens-installer-branding (sólo sesión live de la ISO)
+# --------------------------------------------------------------------------
+PKG=xappiens-installer-branding
+SRC="$REPO/packaging/$PKG"
+ROOT="$STAGE/$PKG"
+mkdir -p "$ROOT/DEBIAN"
+rsync -rlt --chmod=D755,F644 "$SRC/files/" "$ROOT/"
+
+mkdir -p "$ROOT/usr/share/doc/$PKG"
+cat > "$ROOT/usr/share/doc/$PKG/copyright" <<EOF
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: XappiensOS
+Source: https://github.com/XappiensAI/XappiensOS
+
+Files: *
+Copyright: 2026 XappiensAI y colaboradores de XappiensOS
+Comment: Ilustraciones e icono generados por branding/installer/make-installer.py
+ a partir del logotipo de Xappiens.
+License: GPL-3.0
+ En sistemas Debian el texto completo de la licencia está en
+ /usr/share/common-licenses/GPL-3.
+EOF
+
+maintainer_scripts "$SRC" "$ROOT"
+finish "$PKG" "$ROOT" \
+    "pop-installer" \
+    "marca de $DISTRO_NAME para el instalador de la sesión live" \
+" Estilo con la paleta de $DISTRO_NAME, ilustraciones pixel-art propias, icono
+ y nombre (\"Instalar $DISTRO_NAME\") para el instalador de Pop!_OS
+ (pop-installer) en la sesión live de la ISO.
+ .
+ Sólo tiene sentido en la sesión live: el instalador lo elimina del sistema
+ instalado junto con pop-installer."
 
 # --------------------------------------------------------------------------
 # xappiens-bt-sco-fix-dkms

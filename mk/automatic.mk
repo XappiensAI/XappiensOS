@@ -13,6 +13,7 @@ SED=\
 	s|DISTRO_CODE|$(DISTRO_CODE)|g; \
 	s|DISTRO_VERSION|$(DISTRO_VERSION)|g; \
 	s|DISTRO_ARCH|$(DISTRO_ARCH)|g; \
+	s|GRUB_THEME|$(GRUB_THEME)|g; \
 	s|DISTRO_DATE|$(DISTRO_DATE)|g; \
 	s|DISTRO_EPOCH|$(DISTRO_EPOCH)|g; \
 	s|DISTRO_PARAMS|$(DISTRO_PARAMS)|g; \
@@ -22,6 +23,11 @@ SED=\
 	s|UBUNTU_NAME|$(UBUNTU_NAME)|g
 
 CHROOT=env -i PATH=/usr/sbin:/usr/bin:/sbin:/bin chroot
+
+# A debootstrap older than the release being built (e.g. on an Ubuntu 24.04
+# host) has no script for it: fall back to the generic Ubuntu one, as newer
+# debootstrap versions do.
+DEBOOTSTRAP_SCRIPT?=$(if $(wildcard /usr/share/debootstrap/scripts/$(UBUNTU_CODE)),,/usr/share/debootstrap/scripts/gutsy)
 
 XORRISO=$(shell command -v xorriso 2> /dev/null)
 ZSYNC=$(shell command -v zsync 2> /dev/null)

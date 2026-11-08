@@ -1,0 +1,32 @@
+#!/bin/sh
+# XappiensOS: nombre de equipo por defecto tras la instalación.
+#
+# El instalador de Pop!_OS (pop-installer) fija en su código "pop-os" como
+# nombre del equipo instalado. En el primer arranque, si sigue siendo ése, se
+# cambia por "xappiens-os" (en /etc/hostname, /etc/hosts y el del kernel).
+# Sólo se hace una vez: después el usuario puede llamarlo como quiera.
+#
+# Lo ejecuta xappiens-hostname.service, que sólo se activa en la ISO
+# (hooks/chroot/60-hostname.sh), no al convertir un Pop!_OS ya instalado.
+#   XAPPIENS_ROOT  prefijo para trabajar en otro árbol (pruebas)
+set -eu
+
+OLD=pop-os
+NEW="${1:-xappiens-os}"
+ROOT="${XAPPIENS_ROOT:-}"
+STAMP="$ROOT/var/lib/xappiens/hostname-checked"
+
+current="$(tr -d '[:space:]' < "$ROOT/etc/hostname" 2>/dev/null || true)"
+if [ "$current" = "$OLD" ]; then
+    printf '%s\n' "$NEW" > "$ROOT/etc/hostname"
+    if [ -f "$ROOT/etc/hosts" ]; then
+        sed -i "/^127\.0\.1\.1[[:space:]]/ s/\b$OLD\b/$NEW/g" "$ROOT/etc/hosts"
+    fi
+    if [ -z "$ROOT" ]; then
+        hostname "$NEW" 2>/dev/null || printf '%s' "$NEW" > /proc/sys/kernel/hostname || true
+    fi
+    echo "Nombre del equipo: $OLD -> $NEW"
+fi
+
+mkdir -p "$(dirname "$STAMP")"
+touch "$STAMP"

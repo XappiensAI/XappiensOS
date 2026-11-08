@@ -1,0 +1,52 @@
+#!/bin/sh
+# xappiens-installer-branding: aplica la marca de XappiensOS al instalador
+# (pop-installer) de la sesión live.
+#
+# Este paquete sólo se instala en la sesión live (hooks/live/10-installer.sh):
+# queda en filesystem.manifest-remove y el instalador lo purga del sistema
+# instalado, junto con pop-installer.
+set -e
+
+PKG=xappiens-installer-branding
+CSS=/usr/share/xappiens/installer/gtk.css
+ICON=/usr/share/icons/hicolor/scalable/apps/xappiens-installer.svg
+DESKTOP=/usr/share/applications/io.elementary.installer.desktop
+
+divert() {
+    dpkg-divert --package "$PKG" --rename --divert "$1.distrib" --add "$1" >/dev/null
+}
+
+case "$1" in
+    configure)
+        # 1) Estilo. El instalador se ejecuta como root (pkexec) y GTK carga
+        #    el gtk.css del usuario por encima del tema "Pop-dark".
+        mkdir -p /root/.config/gtk-3.0
+        if [ ! -e /root/.config/gtk-3.0/gtk.css ] && [ ! -L /root/.config/gtk-3.0/gtk.css ]; then
+            ln -s "$CSS" /root/.config/gtk-3.0/gtk.css
+        fi
+
+        # 2) Entrada del menú y del dock: "Instalar XappiensOS" con nuestro
+        #    icono. Se genera a partir de la original para conservar todas
+        #    las traducciones.
+        if [ -e "$DESKTOP" ] || [ -e "$DESKTOP.distrib" ]; then
+            divert "$DESKTOP"
+            sed -e 's/Pop!_OS/@DISTRO_NAME@/g' \
+                -e 's/^Icon=.*/Icon=xappiens-installer/' \
+                "$DESKTOP.distrib" > "$DESKTOP"
+        fi
+
+        # 3) Icono "system-os-installer" del tema Pop (el instalador lo usa en
+        #    la pantalla "Probar o instalar").
+        for f in /usr/share/icons/Pop/*/apps/system-os-installer.svg; do
+            [ -e "$f" ] || [ -e "$f.distrib" ] || continue
+            [ "$(readlink "$f" 2>/dev/null)" = "$ICON" ] && continue
+            divert "$f"
+            ln -sf "$ICON" "$f"
+        done
+        if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+            gtk-update-icon-cache -q -f /usr/share/icons/hicolor || true
+        fi
+        ;;
+esac
+
+exit 0

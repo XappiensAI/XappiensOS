@@ -37,9 +37,19 @@ Desde el 2026-11-07, el proyecto XappiensOS ha modificado estos ficheros del
 proyecto original. El detalle de cada cambio está en el historial de git.
 
   mk/automatic.mk   BUILD pasa a ser configurable (BUILD?=) para construir
-                    fuera del directorio del repositorio.
+                    fuera del directorio del repositorio. Sustitución de
+                    GRUB_THEME y script genérico de debootstrap si el del
+                    anfitrión no conoce la versión (DEBOOTSTRAP_SCRIPT).
   mk/chroot.mk      Llamadas a scripts/xappiens-hooks.sh en las etapas
                     "chroot" y "live" (overlays de ficheros y hooks).
+                    debootstrap recibe DEBOOTSTRAP_SCRIPT.
+                    Los .sources de los repositorios se nombran con
+                    REPO_CODE (por defecto DISTRO_CODE).
+  mk/iso.mk         El tema de GRUB de la ISO se elige con GRUB_THEME y
+                    GRUB_THEME_DIR.
+  Makefile          Valores por defecto de GRUB_THEME y GRUB_THEME_DIR (el
+                    tema original de Pop!_OS) y de REPO_CODE.
+  data/grub/grub.cfg  La ruta del tema usa GRUB_THEME.
   deps.sh           Añadido rsync; eliminado qemu-efi (no disponible en
                     Ubuntu 24.04 amd64).
   .gitignore        Ignorados ficheros .iso, .img y .log.
@@ -47,7 +57,13 @@ proyecto original. El detalle de cada cambio está en el historial de git.
                     original se conserva en docs/README.pop-os-iso.md.
 
 Ficheros nuevos de XappiensOS (GPLv3): build.sh, scripts/xappiens-hooks.sh,
-config/xappiens-os/, branding/, packaging/, docs/ROADMAP.md, NOTICE.
+config/xappiens-os/, branding/, packaging/, tests/, docs/ROADMAP.md, NOTICE.
+
+La ISO de XappiensOS usa su propio tema de GRUB (config/xappiens-os/grub-theme)
+en lugar de data/grub-theme. La configuración pop-os sigue usando el original.
+El instalador de Pop!_OS (pop-installer, GPL-3.0) se distribuye sin modificar;
+el paquete xappiens-installer-branding sólo le aplica estilo, imágenes, icono y
+nombre en la sesión live.
 
 packaging/xappiens-bt-sco-fix-dkms/ se distribuye bajo GPL-2.0-only, como el
 código del kernel Linux que contiene:
@@ -57,8 +73,9 @@ código del kernel Linux que contiene:
     linux-bluetooth-headset-mic-fix
     (https://github.com/Mr-V1be/linux-bluetooth-headset-mic-fix), sin cambios.
 
-El logotipo de Xappiens (bombilla y tipografía pixelada) usado en branding/ y
-en el tema de Plymouth es de XappiensAI.
+El logotipo de Xappiens (bombilla y tipografía pixelada) usado en branding/, en
+el tema de Plymouth, en el logo del sistema, en el instalador y en el menú de
+arranque es de XappiensAI.
 
 
 Marcas / Trademarks

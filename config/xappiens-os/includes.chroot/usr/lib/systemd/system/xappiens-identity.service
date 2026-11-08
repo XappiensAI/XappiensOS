@@ -1,0 +1,18 @@
+[Unit]
+Description=XappiensOS: identidad del sistema (os-release, lsb-release, issue)
+Documentation=https://github.com/XappiensAI/XappiensOS
+# La imagen de la ISO (squashfs) mantiene la identidad de Pop!_OS porque el
+# motor del instalador (distinst) sólo reconoce "Pop!_OS". Al arrancar (sesión
+# live y sistema instalado) se aplica la de XappiensOS antes del escritorio.
+DefaultDependencies=no
+After=local-fs.target
+Before=sysinit.target systemd-hostnamed.service display-manager.service
+ConditionPathExists=/etc/xappiens/os-release
+ConditionPathIsReadWrite=/etc
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/xappiens/apply-branding
+
+[Install]
+WantedBy=sysinit.target

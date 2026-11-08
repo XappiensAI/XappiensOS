@@ -9,6 +9,9 @@ chmod 0755 /usr/lib/xappiens/write-identity /usr/lib/xappiens/apply-branding
 DISTRO_NAME="${DISTRO_NAME:-}" DISTRO_VERSION="${DISTRO_VERSION:-}" \
 UBUNTU_CODE="${UBUNTU_CODE:-}" /usr/lib/xappiens/write-identity
 /usr/lib/xappiens/apply-branding
+# También al arrancar: la imagen de la ISO vuelve a la identidad de Pop!_OS
+# para el instalador (ver hooks/live/90-identity.sh).
+systemctl enable xappiens-identity.service
 
 echo "Identidad del sistema:"
 cat /etc/os-release

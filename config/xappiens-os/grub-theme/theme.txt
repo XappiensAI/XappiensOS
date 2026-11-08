@@ -1,0 +1,44 @@
+# Tema de GRUB de XappiensOS (menú de arranque de la ISO).
+# Generado por branding/installer/make-installer.py: no lo edites a mano.
+
+title-text: ""
+desktop-image: "background.png"
+desktop-image-scale-method: "stretch"
+desktop-color: "#121016"
+terminal-font: "Unifont Regular 16"
+terminal-left: "0"
+terminal-top: "0"
+terminal-width: "100%"
+terminal-height: "100%"
+terminal-border: "0"
+
++ image {
+  left = 50%-102
+  top = 46%-197
+  file = "logo.png"
+}
+
++ boot_menu {
+  left = 50%-220
+  top = 54%
+  width = 440
+  height = 24%
+  item_font = "Unifont Regular 16"
+  item_color = "#E0EDED"
+  selected_item_color = "#1D1A24"
+  item_height = 32
+  item_padding = 8
+  item_spacing = 12
+  selected_item_pixmap_style = "select_*.png"
+}
+
++ label {
+  top = 84%
+  left = 25%
+  width = 50%
+  align = "center"
+  id = "__timeout__"
+  text = "Booting in %d seconds"
+  color = "#738794"
+  font = "Unifont Regular 16"
+}

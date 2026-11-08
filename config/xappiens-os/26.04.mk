@@ -10,6 +10,15 @@ DISTRO_NAME=XappiensOS
 # Las etiquetas de volumen se recalculan solas a partir de DISTRO_NAME
 # (XappiensOS_26.04_amd64, ..._NVIDIA, ..._HP).
 
+# Los repositorios son los de Pop!_OS y sus paquetes (pop-default-settings)
+# gestionan los ficheros por nombre: pop-os-release.sources, pop-os-apps.sources.
+REPO_CODE=pop-os
+
+# Menú de arranque de la ISO con el tema propio (lo genera
+# branding/installer/make-installer.py). La fuente se copia de GRUB.
+GRUB_THEME=xappiens
+GRUB_THEME_DIR=config/xappiens-os/grub-theme
+
 # Dependencias de las herramientas que añade el overlay de XappiensOS.
 XAPPIENS_PKGS=python3-gi gir1.2-gtk-3.0 gir1.2-gtklayershell-0.1 wl-clipboard libwayland-client0 libxkbcommon0 xkb-data
 POST_DISTRO_PKGS+=$(XAPPIENS_PKGS)

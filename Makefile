@@ -12,6 +12,13 @@ ISO_NAME?=$(DISTRO_CODE)_$(DISTRO_VERSION)_$(DISTRO_ARCH)
 
 GPG_NAME?=`id -un`
 
+# Prefijo de los ficheros .sources de los repositorios de la distribución
+REPO_CODE?=$(DISTRO_CODE)
+
+# Tema del menú de arranque de la ISO (nombre y directorio de origen)
+GRUB_THEME?=pop
+GRUB_THEME_DIR?=data/grub-theme/usr/share/grub/themes/pop
+
 PROPOSED?=0
 NVIDIA?=0
 HP?=0
