@@ -1,0 +1,37 @@
+#!/bin/sh
+# xappiens-installer-branding: deshace lo que hizo postinst (el instalador lo
+# purga del sistema instalado junto con pop-installer).
+set -e
+
+PKG=xappiens-installer-branding
+CSS=/usr/share/xappiens/installer/gtk.css
+ICON=/usr/share/icons/hicolor/scalable/apps/xappiens-installer.svg
+DESKTOP=/usr/share/applications/io.elementary.installer.desktop
+
+undivert() {
+    dpkg-divert --package "$PKG" --rename --divert "$1.distrib" --remove "$1" >/dev/null
+}
+
+case "$1" in
+    remove|deconfigure)
+        if [ "$(readlink /root/.config/gtk-3.0/gtk.css 2>/dev/null)" = "$CSS" ]; then
+            rm -f /root/.config/gtk-3.0/gtk.css
+            rmdir /root/.config/gtk-3.0 /root/.config 2>/dev/null || true
+        fi
+
+        # "diversion of <fichero> to <desvío> by <paquete>"
+        diverted="$( { dpkg-divert --list "$DESKTOP"
+                       dpkg-divert --list '/usr/share/icons/Pop/*/apps/system-os-installer.svg'; } |
+                     awk -v pkg="$PKG" '$NF == pkg { print $3 }')"
+        for f in $diverted; do
+            if [ "$f" = "$DESKTOP" ]; then
+                rm -f "$f"
+            elif [ "$(readlink "$f" 2>/dev/null)" = "$ICON" ]; then
+                rm -f "$f"
+            fi
+            undivert "$f"
+        done
+        ;;
+esac
+
+exit 0

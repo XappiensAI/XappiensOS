@@ -19,6 +19,7 @@ case "$1" in
         UBUNTU_CODE="@UBUNTU_CODE@" /usr/lib/xappiens/write-identity
         /usr/lib/xappiens/apply-branding
         /usr/lib/xappiens/set-plymouth-theme
+        /usr/lib/xappiens/set-logo || true
         /usr/lib/xappiens/configure-desktop || true
         # Ajustes de Bluetooth según el hardware: en cada arranque y ahora.
         if [ -d /run/systemd/system ]; then

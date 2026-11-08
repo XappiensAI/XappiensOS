@@ -136,7 +136,10 @@ $(BUILD)/iso_data.tag: $(BUILD)/iso_create.tag $(BUILD)/grub $(BUILD)/pool
 	cp /usr/share/grub/unicode.pf2 "$(BUILD)/iso/boot/grub/font.pf2"
 
 	# Copy grub theme
-	cp -r "data/grub-theme/usr/share/grub/themes" "$(BUILD)/iso/boot/grub/themes"
+	mkdir -p "$(BUILD)/iso/boot/grub/themes"
+	cp -r "$(GRUB_THEME_DIR)" "$(BUILD)/iso/boot/grub/themes/$(GRUB_THEME)"
+	[ -e "$(BUILD)/iso/boot/grub/themes/$(GRUB_THEME)/font.pf2" ] || \
+		cp /usr/share/grub/unicode.pf2 "$(BUILD)/iso/boot/grub/themes/$(GRUB_THEME)/font.pf2"
 
 ifeq ($(DISTRO_ARCH),amd64)
 

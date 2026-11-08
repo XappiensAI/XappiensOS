@@ -29,7 +29,7 @@ SUPPORT_URL="https://github.com/XappiensAI/XappiensOS/discussions"
 BUG_REPORT_URL="https://github.com/XappiensAI/XappiensOS/issues"
 VERSION_CODENAME=$UBUNTU_CODE
 UBUNTU_CODENAME=$UBUNTU_CODE
-LOGO=distributor-logo-pop-os
+LOGO=distributor-logo-xappiens
 OSR
 
 cat > "$DIR/lsb-release" <<LSB

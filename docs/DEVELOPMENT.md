@@ -37,8 +37,10 @@ config/
     hooks/chroot/*.sh       # scripts ejecutados dentro del chroot del sistema
     hooks/live/*.sh         # scripts ejecutados dentro del chroot live
 scripts/xappiens-hooks.sh   # aplica overlays y hooks (llamado desde mk/chroot.mk)
-packaging/                  # paquete xappiens-default-settings (convertir sin reinstalar)
-branding/                   # fuentes de la marca (p. ej. pantalla de arranque)
+    grub-theme/             # menú de arranque de la ISO (generado)
+packaging/                  # paquetes .deb (ajustes, módulo Bluetooth, marca del instalador)
+branding/                   # fuentes de la marca: pantalla de arranque (plymouth/),
+                            # logo, instalador y menú de arranque (installer/)
 build.sh                    # punto de entrada para construir XappiensOS
 mk/, data/, scripts/        # sistema de construcción heredado de Pop!_OS
 docs/                       # documentación del proyecto
@@ -63,6 +65,32 @@ cd XappiensOS
 
 Variantes: `NVIDIA=1 ./build.sh` genera la ISO con drivers NVIDIA.
 
+En un anfitrión Ubuntu/Pop!_OS 24.04, `debootstrap` todavía no conoce
+`resolute`; el build usa entonces su script genérico de Ubuntu (`gutsy`), igual
+que las versiones nuevas de debootstrap.
+
+### Marca de la ISO y del instalador
+
+- **Menú de arranque** (GRUB de la ISO): `config/xappiens-os/grub-theme/`,
+  elegido con `GRUB_THEME`/`GRUB_THEME_DIR` en `config/xappiens-os/26.04.mk`.
+- **Instalador** (`pop-installer`): el paquete `xappiens-installer-branding` se
+  instala en la etapa live (`hooks/live/10-installer.sh`) con el estilo, las
+  ilustraciones y el nombre "Instalar XappiensOS". Al instalar, el propio
+  instalador lo purga junto con `pop-installer`.
+- **Logo** `distributor-logo-xappiens` (`LOGO=` de os-release), que sustituye
+  al de Pop!_OS en su tema de iconos (`hooks/chroot/50-logo.sh`).
+- **Nombre del equipo**: `pop-installer` fija `pop-os`; el sistema instalado lo
+  cambia por `xappiens-os` en el primer arranque (`xappiens-hostname.service`).
+- **Identidad e instalador**: el motor del instalador (distinst) lee
+  `/etc/os-release` de la imagen y sólo admite `NAME="Pop!_OS"`; con
+  `XappiensOS` falla ("unsupported OS release"). Por eso el squashfs lleva los
+  enlaces de identidad de Pop (`hooks/live/90-identity.sh`, último hook live) y
+  `xappiens-identity.service` aplica la de XappiensOS en cada arranque, antes
+  del escritorio. Durante la instalación también la aplica el hook de APT
+  `99xappiens-branding`.
+
+Todo lo gráfico sale de [`branding/installer/make-installer.py`](../branding/installer/README.md).
+
 La clave GPG que puede generar `build.sh` es local al proceso de construcción;
 no es una firma oficial de lanzamientos de XappiensOS. La publicación de ISOs y
 sumas firmadas es un hito pendiente de la [hoja de ruta](ROADMAP.md).
@@ -82,7 +110,8 @@ Pop!_OS 26.04 en XappiensOS conservando tus archivos, aplicaciones y ajustes.
 
    ```bash
    packaging/build-deb.sh
-   sudo apt install ./build/packages/*.deb
+   sudo apt install ./build/packages/xappiens-default-settings_*.deb \
+                    ./build/packages/xappiens-bt-sco-fix-dkms_*.deb
    ```
 
    - `xappiens-default-settings`: identidad, pantalla de arranque, historial del
@@ -91,6 +120,10 @@ Pop!_OS 26.04 en XappiensOS conservando tus archivos, aplicaciones y ajustes.
    - `xappiens-bt-sco-fix-dkms`: módulo bluetooth corregido para el micrófono
      de auriculares que se queda mudo tras la primera llamada
      ([detalles](../packaging/xappiens-bt-sco-fix-dkms/README.md)).
+
+   El tercer paquete, `xappiens-installer-branding`, es sólo para la sesión
+   live de la ISO (depende de `pop-installer`): no lo instales en un sistema
+   ya instalado.
 
 3. Reinicia para ver la nueva pantalla de arranque. El historial y su atajo se
    activan al volver a iniciar sesión en COSMIC.

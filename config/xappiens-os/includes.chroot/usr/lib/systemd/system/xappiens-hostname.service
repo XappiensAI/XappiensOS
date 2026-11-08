@@ -1,0 +1,13 @@
+[Unit]
+Description=XappiensOS: nombre de equipo por defecto tras la instalación
+Documentation=https://github.com/XappiensAI/XappiensOS
+ConditionPathExists=!/var/lib/xappiens/hostname-checked
+ConditionPathIsReadWrite=/etc
+Before=NetworkManager.service systemd-networkd.service display-manager.service avahi-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/xappiens/default-hostname
+
+[Install]
+WantedBy=multi-user.target

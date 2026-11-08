@@ -9,19 +9,28 @@
 
 ## Hito 1 — Primera ISO arrancable
 - [ ] Construir `xappiens-os_26.04_amd64.iso` y arrancarla en QEMU (UEFI y BIOS).
-- [ ] Verificar que el instalador funciona con `ID=xappiens`
-      (si alguna herramienta de Pop exige `ID=pop`, documentarlo y ajustar).
+- [x] distinst exige `NAME="Pop!_OS"` en el os-release de la imagen: la ISO
+      lleva la identidad de Pop en el squashfs y aplica la de XappiensOS al
+      arrancar (`xappiens-identity.service`). Ver la guía técnica.
+- [x] Instalación completa en VM (QEMU, UEFI): instala, arranca y queda
+      con identidad, logo, avatar y equipo `xappiens-os`.
 - [ ] Instalar en una VM y comprobar actualizaciones con `apt full-upgrade`.
 - [ ] Probar en hardware real (este equipo) desde USB.
 
 ## Hito 2 — Marca propia (necesario antes de distribuir públicamente)
 Pop!_OS y sus logotipos son marcas registradas de System76: una distro derivada
 que se publique debe sustituir su imagen.
-- [ ] Logo e iconos `distributor-logo-xappiens-os` (y cambiar `LOGO=` en os-release).
-- [ ] Tema de GRUB propio (sustituir el submódulo `data/grub-theme`).
+- [x] Logo `distributor-logo-xappiens` (`LOGO=` en os-release) en lugar del
+      de Pop!_OS en su tema de iconos: `branding/installer/`.
+- [x] Tema de GRUB propio para el menú de arranque de la ISO.
 - [x] Tema de Plymouth (pantalla de arranque): `branding/plymouth/`.
+- [x] Instalador con nuestra marca: colores, ilustraciones, icono, nombre
+      "Instalar XappiensOS" y equipo `xappiens-os` en vez de `pop-os`.
+- [x] Instalador con la marca validado en QEMU (UEFI).
+- [ ] Probarlo en hardware real y en BIOS.
+- [ ] Textos del instalador que nombran Pop!_OS en su código (exige un fork
+      de `pop-installer`).
 - [ ] Fondos de pantalla y ajustes por defecto de COSMIC.
-- [ ] Nombre/usuario de la sesión live y textos del instalador.
 
 ## Hito 3 — Paquetes y repositorio propios
 - [x] Paquete `xappiens-default-settings` (`packaging/build-deb.sh`): convierte un

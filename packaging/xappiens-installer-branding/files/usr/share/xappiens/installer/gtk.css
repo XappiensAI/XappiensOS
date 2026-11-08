@@ -1,0 +1,548 @@
+/*
+ * XappiensOS — aspecto del instalador (pop-installer) en la sesión live.
+ *
+ * El instalador se ejecuta como root (pkexec) y fija en su código el tema
+ * GTK "Pop-dark". GTK carga además ~/.config/gtk-3.0/gtk.css del usuario con
+ * prioridad USER, por encima del tema y del CSS propio de la aplicación, así
+ * que aquí se redefine su aspecto sin modificar el instalador: el paquete
+ * xappiens-installer-branding enlaza este fichero en /root/.config/gtk-3.0/.
+ *
+ * Paleta: branding/plymouth/README.md. Ilustraciones: generadas por
+ * branding/installer/make-installer.py.
+ */
+
+@define-color xa_bg #1D1A24;
+@define-color xa_surface #24212D;
+@define-color xa_raised #2E2A38;
+@define-color xa_hover #3A3546;
+@define-color xa_border #3E394B;
+@define-color xa_fg #E0EDED;
+@define-color xa_dim #A8B8C2;
+@define-color xa_outline #738794;
+@define-color xa_ink #524B62;
+@define-color xa_accent #E8C984;
+@define-color xa_accent_hover #F0D69B;
+@define-color xa_accent_active #D5A57D;
+@define-color xa_on_accent #1D1A24;
+@define-color xa_hot #DE9654;
+@define-color xa_danger #D9705F;
+
+/* ---------------------------------------------------------------- base */
+
+window,
+window.background,
+.os-installer,
+dialog,
+messagedialog,
+messagedialog .dialog-action-area {
+    background-color: @xa_bg;
+    background-image: none;
+    color: @xa_fg;
+}
+
+label:disabled {
+    color: alpha(@xa_dim, 0.6);
+}
+
+.dim-label,
+label.dim-label {
+    color: @xa_dim;
+    opacity: 1;
+}
+
+.h1, .h2, .h3, .primary {
+    color: @xa_fg;
+}
+
+.h2 {
+    font-weight: 300;
+}
+
+label.error, .error label {
+    color: @xa_danger;
+}
+
+label.warning {
+    color: @xa_hot;
+}
+
+*:selected,
+selection,
+label selection,
+entry selection,
+textview text selection {
+    background-color: alpha(@xa_accent, 0.35);
+    color: @xa_fg;
+}
+
+link, *:link, button.link, label link {
+    color: @xa_accent;
+}
+
+link:visited, *:link:visited {
+    color: @xa_accent_active;
+}
+
+/* ----------------------------------------------------------- headerbar */
+
+headerbar,
+.titlebar,
+headerbar:backdrop,
+.titlebar:backdrop {
+    background-color: @xa_bg;
+    background-image: none;
+    border-color: @xa_bg;
+    box-shadow: none;
+    color: @xa_fg;
+}
+
+headerbar .title {
+    color: @xa_fg;
+}
+
+/* ------------------------------------------------------------- botones */
+
+button {
+    background-color: @xa_raised;
+    background-image: none;
+    border: 1px solid @xa_border;
+    border-radius: 6px;
+    box-shadow: none;
+    text-shadow: none;
+    -gtk-icon-shadow: none;
+    color: @xa_fg;
+}
+
+button:hover {
+    background-color: @xa_hover;
+    border-color: @xa_outline;
+}
+
+button:active,
+button:checked {
+    background-color: @xa_ink;
+    border-color: @xa_outline;
+}
+
+button:disabled {
+    background-color: @xa_surface;
+    border-color: @xa_surface;
+    color: alpha(@xa_dim, 0.5);
+}
+
+button:disabled label {
+    color: alpha(@xa_dim, 0.5);
+}
+
+button:focus {
+    outline-color: alpha(@xa_accent, 0.6);
+}
+
+button.flat {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+button.flat:hover {
+    background-color: @xa_raised;
+    border-color: @xa_border;
+}
+
+/* Opciones del instalador (disco, actualizar, ...): botones de alternancia */
+button.flat.toggle:checked,
+button.toggle:checked {
+    background-color: @xa_raised;
+    border-color: @xa_accent;
+    box-shadow: inset 0 0 0 1px @xa_accent;
+}
+
+button.suggested-action {
+    background-color: @xa_accent;
+    border-color: @xa_accent_active;
+    color: @xa_on_accent;
+    font-weight: bold;
+}
+
+button.suggested-action label {
+    color: @xa_on_accent;
+}
+
+button.suggested-action:hover {
+    background-color: @xa_accent_hover;
+    border-color: @xa_accent;
+}
+
+button.suggested-action:active,
+button.suggested-action:checked {
+    background-color: @xa_accent_active;
+    border-color: @xa_accent_active;
+}
+
+button.suggested-action:disabled {
+    background-color: alpha(@xa_accent, 0.25);
+    border-color: transparent;
+    color: alpha(@xa_fg, 0.45);
+}
+
+button.suggested-action:disabled label {
+    color: alpha(@xa_fg, 0.45);
+}
+
+button.destructive-action {
+    background-color: @xa_danger;
+    border-color: shade(@xa_danger, 0.85);
+    color: @xa_on_accent;
+    font-weight: bold;
+}
+
+button.destructive-action label {
+    color: @xa_on_accent;
+}
+
+button.destructive-action:hover {
+    background-color: shade(@xa_danger, 1.08);
+}
+
+button.destructive-action:active {
+    background-color: shade(@xa_danger, 0.9);
+}
+
+button.destructive-action:disabled {
+    background-color: alpha(@xa_danger, 0.25);
+    border-color: transparent;
+    color: alpha(@xa_fg, 0.45);
+}
+
+button.destructive-action:disabled label {
+    color: alpha(@xa_fg, 0.45);
+}
+
+/* ------------------------------------------------- campos de texto, listas */
+
+entry,
+spinbutton:not(.vertical),
+combobox button.combo {
+    background-color: @xa_surface;
+    background-image: none;
+    border: 1px solid @xa_border;
+    border-radius: 6px;
+    box-shadow: none;
+    color: @xa_fg;
+    caret-color: @xa_accent;
+}
+
+entry:focus,
+spinbutton:focus:not(.vertical) {
+    border-color: @xa_accent;
+    box-shadow: inset 0 0 0 1px @xa_accent;
+}
+
+entry.error,
+entry.error:focus {
+    border-color: @xa_danger;
+    box-shadow: inset 0 0 0 1px @xa_danger;
+    color: @xa_fg;
+}
+
+entry.warning,
+entry.warning:focus {
+    border-color: @xa_hot;
+    box-shadow: inset 0 0 0 1px @xa_hot;
+}
+
+entry:disabled {
+    background-color: @xa_bg;
+    color: alpha(@xa_dim, 0.5);
+}
+
+entry image {
+    color: @xa_dim;
+}
+
+.view,
+list,
+listview,
+treeview.view,
+textview text {
+    background-color: @xa_surface;
+    background-image: none;
+    color: @xa_fg;
+}
+
+list row,
+list row:hover {
+    background-image: none;
+    box-shadow: none;
+}
+
+list row:hover {
+    background-color: @xa_raised;
+}
+
+list row:selected,
+list row:selected:focus,
+treeview.view:selected,
+.view:selected {
+    background-color: @xa_accent;
+    color: @xa_on_accent;
+}
+
+list row:selected label,
+list row:selected image {
+    color: @xa_on_accent;
+}
+
+frame > border,
+scrolledwindow.frame,
+.frame {
+    border-color: @xa_border;
+}
+
+separator {
+    background-color: @xa_border;
+}
+
+popover,
+popover.background,
+menu,
+.menu,
+.context-menu {
+    background-color: @xa_raised;
+    border-color: @xa_border;
+    color: @xa_fg;
+}
+
+menuitem:hover,
+modelbutton.flat:hover,
+.menuitem.button.flat:hover {
+    background-color: @xa_accent;
+    color: @xa_on_accent;
+}
+
+tooltip,
+tooltip.background {
+    background-color: @xa_surface;
+    border: 1px solid @xa_border;
+    color: @xa_fg;
+}
+
+tooltip * {
+    color: @xa_fg;
+}
+
+/* -------------------------------------- casillas, interruptores, barras */
+
+check,
+radio {
+    background-color: @xa_surface;
+    background-image: none;
+    border: 1px solid @xa_outline;
+    box-shadow: none;
+    color: @xa_on_accent;
+}
+
+check:hover,
+radio:hover {
+    border-color: @xa_accent;
+}
+
+check:checked,
+check:indeterminate,
+radio:checked {
+    background-color: @xa_accent;
+    background-image: none;
+    border-color: @xa_accent_active;
+    color: @xa_on_accent;
+}
+
+switch {
+    background-color: @xa_raised;
+    background-image: none;
+    border: 1px solid @xa_border;
+    color: @xa_fg;
+}
+
+switch:checked {
+    background-color: @xa_accent;
+    border-color: @xa_accent_active;
+    color: @xa_on_accent;
+}
+
+switch slider {
+    background-color: @xa_fg;
+    background-image: none;
+    border: 1px solid @xa_border;
+    box-shadow: none;
+}
+
+progressbar trough,
+levelbar trough,
+scale trough {
+    background-color: @xa_raised;
+    background-image: none;
+    border: 1px solid @xa_border;
+    box-shadow: none;
+}
+
+progressbar progress,
+scale highlight {
+    background-color: @xa_accent;
+    background-image: none;
+    border-color: @xa_accent_active;
+    box-shadow: none;
+}
+
+progressbar text {
+    color: @xa_dim;
+}
+
+/* Fortaleza de la contraseña */
+levelbar block.filled,
+levelbar block.high,
+levelbar block.full {
+    background-color: @xa_accent;
+    border-color: @xa_accent_active;
+}
+
+levelbar block.low {
+    background-color: @xa_danger;
+    border-color: @xa_danger;
+}
+
+levelbar block.middle {
+    background-color: @xa_hot;
+    border-color: @xa_hot;
+}
+
+levelbar block.empty {
+    background-color: @xa_raised;
+    border-color: @xa_border;
+}
+
+/* Registro de la instalación ("terminal" en la vista de progreso) */
+.terminal,
+.terminal text {
+    background-color: #121016;
+    color: @xa_dim;
+    font-family: monospace;
+}
+
+infobar,
+infobar box {
+    background-color: @xa_raised;
+    background-image: none;
+    border-color: @xa_border;
+    color: @xa_fg;
+}
+
+/* --------------------------------------------------------- ilustraciones */
+/*
+ * Sustituyen a las del instalador original (la clase de cada paso viene de
+ * su código: try-install, language, keyboard, disks, encrypt, progress,
+ * success, issue, error, create-account). Los fotogramas cambian de golpe
+ * (steps), como corresponde al pixel-art.
+ */
+
+.artwork {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: none;
+}
+
+@keyframes xappiens-try-install {
+    0%      { background-image: url("file:///usr/share/xappiens/installer/try-install-1.png"); }
+    33.333% { background-image: url("file:///usr/share/xappiens/installer/try-install-2.png"); }
+    66.667% { background-image: url("file:///usr/share/xappiens/installer/try-install-3.png"); }
+    100%    { background-image: url("file:///usr/share/xappiens/installer/try-install-1.png"); }
+}
+
+.artwork.try-install {
+    background-image: url("file:///usr/share/xappiens/installer/try-install-1.png");
+    animation: xappiens-try-install 1.5s steps(1, end) infinite;
+}
+
+@keyframes xappiens-language {
+    0%   { background-image: url("file:///usr/share/xappiens/installer/language-1.png"); }
+    50%  { background-image: url("file:///usr/share/xappiens/installer/language-2.png"); }
+    100% { background-image: url("file:///usr/share/xappiens/installer/language-1.png"); }
+}
+
+.artwork.language {
+    background-image: url("file:///usr/share/xappiens/installer/language-1.png");
+    animation: xappiens-language 2.4s steps(1, end) infinite;
+}
+
+@keyframes xappiens-keyboard {
+    0%      { background-image: url("file:///usr/share/xappiens/installer/keyboard-1.png"); }
+    33.333% { background-image: url("file:///usr/share/xappiens/installer/keyboard-2.png"); }
+    66.667% { background-image: url("file:///usr/share/xappiens/installer/keyboard-3.png"); }
+    100%    { background-image: url("file:///usr/share/xappiens/installer/keyboard-1.png"); }
+}
+
+.artwork.keyboard {
+    background-image: url("file:///usr/share/xappiens/installer/keyboard-1.png");
+    animation: xappiens-keyboard 1.2s steps(1, end) infinite;
+}
+
+.artwork.disks {
+    background-image: url("file:///usr/share/xappiens/installer/disks-1.png");
+}
+
+@keyframes xappiens-encrypt {
+    0%   { background-image: url("file:///usr/share/xappiens/installer/encrypt-1.png"); }
+    20%  { background-image: url("file:///usr/share/xappiens/installer/encrypt-2.png"); }
+    40%  { background-image: url("file:///usr/share/xappiens/installer/encrypt-3.png"); }
+    100% { background-image: url("file:///usr/share/xappiens/installer/encrypt-1.png"); }
+}
+
+.artwork.encrypt {
+    background-image: url("file:///usr/share/xappiens/installer/encrypt-3.png");
+    animation: xappiens-encrypt 2.5s steps(1, end) infinite;
+}
+
+@keyframes xappiens-progress {
+    0%   { background-image: url("file:///usr/share/xappiens/installer/progress-1.png"); }
+    50%  { background-image: url("file:///usr/share/xappiens/installer/progress-2.png"); }
+    100% { background-image: url("file:///usr/share/xappiens/installer/progress-1.png"); }
+}
+
+.artwork.progress {
+    background-image: url("file:///usr/share/xappiens/installer/progress-1.png");
+    animation: xappiens-progress 1s steps(1, end) infinite;
+}
+
+@keyframes xappiens-success {
+    0%   { background-image: url("file:///usr/share/xappiens/installer/success-1.png"); }
+    50%  { background-image: url("file:///usr/share/xappiens/installer/success-2.png"); }
+    100% { background-image: url("file:///usr/share/xappiens/installer/success-1.png"); }
+}
+
+.artwork.success {
+    background-image: url("file:///usr/share/xappiens/installer/success-1.png");
+    animation: xappiens-success 1.4s steps(1, end) infinite;
+}
+
+@keyframes xappiens-issue {
+    0%   { background-image: url("file:///usr/share/xappiens/installer/issue-1.png"); }
+    50%  { background-image: url("file:///usr/share/xappiens/installer/issue-2.png"); }
+    100% { background-image: url("file:///usr/share/xappiens/installer/issue-1.png"); }
+}
+
+.artwork.issue {
+    background-image: url("file:///usr/share/xappiens/installer/issue-1.png");
+    animation: xappiens-issue 1s steps(1, end) infinite;
+}
+
+.artwork.error {
+    background-image: url("file:///usr/share/xappiens/installer/error-1.png");
+}
+
+.artwork.create-account {
+    background-image: url("file:///usr/share/xappiens/installer/create-account-1.png");
+}
+
+/* Logo de la vista de progreso (icono distributor-logo, ya con la marca) */
+.progress-view .logo {
+    color: @xa_accent;
+}

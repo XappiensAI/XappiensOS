@@ -1,0 +1,65 @@
+#!/bin/sh
+# XappiensOS: logo y avatar por defecto de la distribución.
+#
+# El logo propio es el icono distributor-logo-xappiens (hicolor), al que
+# apunta LOGO= en os-release. Además se sustituyen dos imágenes de Pop!_OS
+# que usan el instalador y el sistema:
+#   - "distributor-logo" del tema de iconos Pop (el instalador fija ese tema
+#     en su código; también lo usan otras aplicaciones GTK);
+#   - el avatar por defecto pop-robot.png (pop-default-settings), que el
+#     instalador propone para la cuenta de usuario.
+# Cada fichero se desvía con dpkg-divert y se sustituye por un enlace al
+# nuestro; los desvíos sobreviven a las actualizaciones de los paquetes de Pop.
+# "distributor-logo-pop-os" no se toca: sirve para reconocer instalaciones de
+# Pop!_OS existentes.
+#
+# La usan el hook de la ISO (hooks/chroot/50-logo.sh) y el paquete
+# xappiens-default-settings. Con --revert deshace los desvíos.
+set -e
+
+LOGO=/usr/share/icons/hicolor/scalable/apps/distributor-logo-xappiens.svg
+AVATAR=/usr/share/pixmaps/faces/xappiens.png
+
+# patrón de ficheros de Pop -> sustituto
+REPLACEMENTS="
+/usr/share/icons/Pop/*/places/distributor-logo.svg $LOGO
+/usr/share/pixmaps/faces/pop-robot.png $AVATAR
+"
+
+refresh_cache() {
+    if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+        gtk-update-icon-cache -q -f /usr/share/icons/hicolor 2>/dev/null || true
+    fi
+}
+
+revert() {
+    pattern="$1" target="$2"
+    # "local diversion of <fichero> to <desvío>"
+    for f in $(dpkg-divert --list "$pattern" | awk '$1 == "local" { print $4 }'); do
+        if [ "$(readlink "$f" 2>/dev/null)" = "$target" ]; then
+            rm -f "$f"
+        fi
+        dpkg-divert --local --rename --divert "$f.distrib" --remove "$f" >/dev/null
+    done
+}
+
+apply() {
+    pattern="$1" target="$2"
+    [ -f "$target" ] || { echo "set-logo: falta $target" >&2; return 1; }
+    for f in $pattern; do
+        [ -e "$f" ] || [ -e "$f.distrib" ] || continue
+        [ "$(readlink "$f" 2>/dev/null)" = "$target" ] && continue
+        dpkg-divert --local --rename --divert "$f.distrib" --add "$f" >/dev/null
+        ln -sf "$target" "$f"
+    done
+}
+
+action=apply
+[ "${1:-}" = "--revert" ] && action=revert
+
+echo "$REPLACEMENTS" | while read -r pattern target; do
+    [ -n "$pattern" ] || continue
+    $action "$pattern" "$target"
+done
+[ "$action" = apply ] && refresh_cache
+exit 0
