@@ -1,112 +1,117 @@
-# XappiensOS
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="XappiensOS — A desktop of our own · Un escritorio propio" width="100%">
+</p>
 
-**XappiensOS** es un sistema operativo libre basado en **Pop!_OS** y en
-**Ubuntu 26.04 LTS "Resolute Raccoon"**, con el escritorio **COSMIC**.
+<p align="center">
+  <a href="docs/ROADMAP.md"><img src="https://img.shields.io/badge/status-pre--alpha-D5A57D?style=for-the-badge&labelColor=524B62" alt="Status: pre-alpha"></a>
+  <a href="config/xappiens-os/26.04.mk"><img src="https://img.shields.io/badge/base-Ubuntu%2026.04%20LTS-738794?style=for-the-badge&labelColor=524B62&logo=ubuntu&logoColor=white" alt="Base: Ubuntu 26.04 LTS"></a>
+  <a href="https://github.com/pop-os/cosmic-epoch"><img src="https://img.shields.io/badge/desktop-COSMIC-E8C984?style=for-the-badge&labelColor=524B62" alt="Desktop: COSMIC"></a>
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-GPL--3.0-524B62?style=for-the-badge&logo=gnu&logoColor=E8C984" alt="License: GPL-3.0"></a>
+</p>
 
-Queremos conservar lo mejor de Pop!_OS —ligereza, rendimiento, compatibilidad de
-hardware, un escritorio moderno— y construir encima nuestra propia identidad,
-ajustes y herramientas.
+<p align="center">
+  <a href="#english"><b>🇬🇧 English</b></a> &nbsp;·&nbsp;
+  <a href="#español"><b>🇪🇸 Español</b></a>
+</p>
 
-> Estado: **pre-alfa**. El sistema de construcción funciona sobre la base de
-> Pop!_OS 26.04; la marca propia está en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
+<p align="center">
+  <a href="docs/DEVELOPMENT.md">Build guide / Guía técnica</a> &nbsp;·&nbsp;
+  <a href="docs/ROADMAP.md">Roadmap</a> &nbsp;·&nbsp;
+  <a href="https://github.com/XappiensAI">XappiensAI</a>
+</p>
 
-## Base técnica
+---
 
-| Componente   | Origen                                            |
-|--------------|---------------------------------------------------|
-| Base         | Ubuntu 26.04 LTS (`resolute`)                     |
-| Escritorio   | COSMIC (repositorios `resolute` de Pop!_OS)       |
-| Kernel       | `linux-system76` (7.x)                            |
-| Arranque     | systemd-boot + kernelstub (instalado), GRUB (ISO) |
-| Live/initrd  | dracut (`dmsquash-live`)                          |
-| Instalador   | `pop-installer` / distinst                        |
-| Construcción | Fork de [`pop-os/iso`](https://github.com/pop-os/iso) (debootstrap + Makefiles) |
+## English
 
-## Estructura
+**XappiensOS** is a free operating system built on **Pop!_OS**, **Ubuntu 26.04 LTS** and the **COSMIC** desktop. We keep that foundation and add our own identity, desktop tools and hardware-specific fixes.
 
-```
-config/
-  pop-os/26.04.mk           # configuración original de Pop!_OS (upstream, no tocar)
-  xappiens-os/
-    26.04.mk                # nuestra configuración: hereda de Pop y sobrescribe
-    includes.chroot/        # ficheros que se copian al sistema instalado
-    includes.live/          # ficheros sólo para la sesión live (opcional)
-    hooks/chroot/*.sh       # scripts ejecutados dentro del chroot del sistema
-    hooks/live/*.sh         # scripts ejecutados dentro del chroot live
-scripts/xappiens-hooks.sh   # aplica overlays y hooks (llamado desde mk/chroot.mk)
-packaging/                  # paquete xappiens-default-settings (convertir sin reinstalar)
-branding/                   # fuentes de la marca (p. ej. pantalla de arranque)
-build.sh                    # punto de entrada para construir XappiensOS
-mk/, data/, scripts/        # sistema de construcción heredado de Pop!_OS
-docs/                       # documentación del proyecto
-```
+Built by **[Xappiens](https://xappiens.com)**, developed in the open, and shared under the GPL-3.0.
 
-## Construir la ISO
+> **Pre-alpha.** This repository contains the build system and packages. Validation of the complete ISO, installer and installed system is still pending. Follow the [roadmap](docs/ROADMAP.md) for the current state.
 
-Requisitos: un sistema basado en Ubuntu/Pop!_OS, `sudo`, ~25 GB libres en un
-sistema de ficheros Linux (ext4/btrfs/xfs) y conexión a internet.
+### What comes with XappiensOS
 
-```bash
-git clone --recurse-submodules https://github.com/XappiensAI/XappiensOS.git
-cd XappiensOS
-./deps.sh          # instala debootstrap, xorriso, squashfs-tools, qemu...
-./build.sh         # construye la ISO en ~/xappiens-build/26.04/amd64/
-./build.sh qemu    # arranca la ISO en una máquina virtual
-```
+| | Feature | What it does |
+|---|---|---|
+| 📋 | **Clipboard history** | **Super + V** opens the text and images copied during the session. Pick an entry to paste it into the previous app. |
+| 💡 | **Our own identity** | System identity and a custom Plymouth boot screen, shared by the ISO and the settings package. |
+| 🎧 | **Targeted Bluetooth fixes** | Hardware-specific audio settings and a DKMS fix for the headset microphone issue documented [here](packaging/xappiens-bt-sco-fix-dkms/README.md). |
+| 🪐 | **COSMIC desktop** | A Wayland desktop on the Pop!_OS foundation, with the upstream build history preserved. |
 
-> **Importante:** la construcción **no puede** hacerse en NTFS/exFAT/FAT.
-> Si el repositorio está en un disco así, `build.sh` construye por defecto en
-> `~/xappiens-build`; puedes cambiarlo con `XAPPIENS_BUILD_ROOT=/ruta/ext4`.
+### Copy. Choose. Paste.
 
-Variantes: `NVIDIA=1 ./build.sh` genera la ISO con drivers NVIDIA.
+Copy a few items, press **Super + V**, and choose with the mouse or the arrow keys and **Enter**. Search, clear the history, or close it with **Escape**. The history stays in memory and ends when you sign out.
 
-## Convertir un Pop!_OS ya instalado (sin reinstalar)
+<p align="center">
+  <img src="docs/assets/clipboard-history.png" alt="XappiensOS clipboard history popup, tested in an isolated Wayland session with sample content" width="420">
+</p>
 
-El paquete `xappiens-default-settings` lleva el mismo contenido que la ISO
-(identidad del sistema y pantalla de arranque), así que convierte un
-Pop!_OS 26.04 en XappiensOS conservando tus archivos, aplicaciones y ajustes.
+<p align="center"><sub>Actual clipboard tool in an isolated Wayland test session, using sample content.</sub></p>
 
-1. **Actualiza a Pop!_OS 26.04** si aún tienes la 24.04, con la herramienta
-   oficial de Pop (Ajustes → Actualización del sistema, o
-   `pop-upgrade release upgrade`). Haz antes una copia de seguridad de `/home`.
-2. **Construye e instala los paquetes** (construirlos no necesita `sudo`):
+The tool stores plain text and supported images. See the [clipboard guide](docs/clipboard-history.md) for storage limits, integration and tests.
 
-   ```bash
-   packaging/build-deb.sh
-   sudo apt install ./build/packages/*.deb
-   ```
+### Get started
 
-   - `xappiens-default-settings`: identidad, pantalla de arranque y ajustes
-     de Bluetooth según el hardware (perfil de llamadas para MediaTek MT7925).
-   - `xappiens-bt-sco-fix-dkms`: módulo bluetooth corregido para el micrófono
-     de auriculares que se queda mudo tras la primera llamada
-     ([detalles](packaging/xappiens-bt-sco-fix-dkms/README.md)).
+| I want to… | Start here |
+|---|---|
+| **Build an ISO** | [Build requirements and commands](docs/DEVELOPMENT.md#construir-la-iso) |
+| **Use the settings package** | [Install on an existing Pop!_OS 26.04 system](docs/DEVELOPMENT.md#convertir-un-pop_os-2604-instalado) |
+| **Understand the code** | [Architecture and repository layout](docs/DEVELOPMENT.md#estructura-del-repositorio) |
+| **Test the clipboard** | [Automated and desktop checks](docs/clipboard-history.md#validación-en-una-sesión-cosmic-de-prueba) |
+| **Help build XappiensOS** | [Roadmap](docs/ROADMAP.md), [issues](https://github.com/XappiensAI/XappiensOS/issues) and [development checks](docs/DEVELOPMENT.md#pruebas) |
 
-3. Reinicia para ver la nueva pantalla de arranque.
+The full settings package targets **Pop!_OS 26.04**. It changes system identity and must not be installed on 24.04. Building requires a Linux filesystem, about **25 GB free**, `sudo` and an internet connection.
 
-El paquete se niega a instalarse sobre otra versión de la base (p. ej. 24.04),
-porque `/etc/os-release` anunciaría una versión que no es la real. Para
-volver a Pop!_OS basta con `sudo apt remove xappiens-default-settings`.
+<p align="right"><a href="#english">↑ back to top</a></p>
 
-## Seguir a Pop!_OS (upstream)
+---
 
-Este repositorio mantiene la historia de `pop-os/iso`, de modo que podemos
-incorporar sus mejoras:
+## Español
 
-```bash
-git remote add upstream https://github.com/pop-os/iso.git   # una sola vez
-git fetch upstream
-git merge upstream/master
-```
+**XappiensOS** es un sistema operativo libre basado en **Pop!_OS**, **Ubuntu 26.04 LTS** y el escritorio **COSMIC**. Conservamos esa base y añadimos nuestra identidad, herramientas de escritorio y correcciones para hardware concreto.
 
-Nuestros cambios sobre ficheros de upstream se limitan a propósito a muy pocas
-líneas (`mk/automatic.mk`, `mk/chroot.mk`, `deps.sh`) para que las fusiones
-sean sencillas. Todo lo demás vive en `config/xappiens-os/`.
+Un proyecto de **[Xappiens](https://xappiens.com)**, desarrollado en abierto y compartido bajo la GPL-3.0.
 
-## Licencia
+> **Pre-alfa.** Este repositorio contiene el sistema de construcción y los paquetes. La validación de la ISO completa, el instalador y el sistema instalado sigue pendiente. Consulta el estado en la [hoja de ruta](docs/ROADMAP.md).
 
-XappiensOS es y será siempre **software libre**, bajo la GPL-3.0, igual que
-el sistema de construcción de Pop!_OS del que deriva (ver [LICENSE.md](LICENSE.md)).
-La atribución al proyecto original, los ficheros modificados y los avisos de
-marcas están en [NOTICE](NOTICE). Pop!_OS y System76 son marcas de System76, Inc.;
-XappiensOS es un proyecto independiente y no está afiliado a System76.
+### Qué incluye XappiensOS
+
+| | Función | Qué aporta |
+|---|---|---|
+| 📋 | **Historial del portapapeles** | **Super + V** muestra el texto y las imágenes copiados durante la sesión. Selecciona una entrada para pegarla en la aplicación anterior. |
+| 💡 | **Identidad propia** | Identidad del sistema y pantalla de arranque Plymouth, compartidas por la ISO y el paquete de ajustes. |
+| 🎧 | **Correcciones de Bluetooth** | Ajustes de audio según el hardware y un módulo DKMS para el fallo del micrófono de auriculares descrito [aquí](packaging/xappiens-bt-sco-fix-dkms/README.md). |
+| 🪐 | **Escritorio COSMIC** | Un escritorio Wayland sobre la base de Pop!_OS, conservando la historia del sistema de construcción original. |
+
+### Copia. Elige. Pega.
+
+Copia varios elementos, pulsa **Super + V** y elige con el ratón o con las flechas y **Enter**. Puedes buscar, vaciar el historial y cerrar con **Escape**. El contenido permanece en memoria y se borra al cerrar sesión.
+
+La captura de arriba muestra la herramienta real en una sesión Wayland aislada con contenido de ejemplo. Guarda texto sin formato e imágenes compatibles; los límites, la integración y las pruebas están en la [guía del portapapeles](docs/clipboard-history.md).
+
+### Empieza por aquí
+
+| Quiero… | Guía |
+|---|---|
+| **Construir una ISO** | [Requisitos y comandos de construcción](docs/DEVELOPMENT.md#construir-la-iso) |
+| **Usar el paquete de ajustes** | [Instalar sobre Pop!_OS 26.04](docs/DEVELOPMENT.md#convertir-un-pop_os-2604-instalado) |
+| **Entender el código** | [Arquitectura y estructura del repositorio](docs/DEVELOPMENT.md#estructura-del-repositorio) |
+| **Probar el portapapeles** | [Pruebas automáticas y de escritorio](docs/clipboard-history.md#validación-en-una-sesión-cosmic-de-prueba) |
+| **Participar en el proyecto** | [Hoja de ruta](docs/ROADMAP.md), [incidencias](https://github.com/XappiensAI/XappiensOS/issues) y [comprobaciones de desarrollo](docs/DEVELOPMENT.md#pruebas) |
+
+El paquete completo de ajustes está dirigido a **Pop!_OS 26.04**. Cambia la identidad del sistema y no debe instalarse sobre la 24.04. Para construir necesitas un sistema de ficheros Linux, unos **25 GB libres**, `sudo` y conexión a internet.
+
+<p align="right"><a href="#español">↑ volver arriba</a></p>
+
+---
+
+<p align="center">
+  <a href="LICENSE.md"><b>GPL-3.0</b></a> &nbsp;·&nbsp;
+  <a href="NOTICE">Attribution / Atribución</a> &nbsp;·&nbsp;
+  <a href="https://github.com/pop-os/iso">Upstream: pop-os/iso</a> &nbsp;·&nbsp;
+  <a href="https://xappiens.com">xappiens.com</a>
+</p>
+
+<p align="center"><sub>Independent project. Pop!_OS and System76 are trademarks of System76, Inc. XappiensOS is not affiliated with System76.</sub></p>
+<p align="center"><sub>Proyecto independiente. Pop!_OS y System76 son marcas de System76, Inc. XappiensOS no está afiliado a System76.</sub></p>
