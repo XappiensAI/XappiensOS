@@ -1,17 +1,47 @@
-# Contributing to Pop\!\_OS
+# Contribuir a XappiensOS / Contributing
 
-Welcome to the Pop\!\_OS repository, we hope you are enjoying getting a look at the code! If you're considering contributing to the project, please take a look at the instructions for how to contribute before submitting any feature requests, bugs to the issue tracker, or code.
+Gracias por tu interés en XappiensOS. El proyecto está en **pre-alfa**: toda
+ayuda para construir, probar y documentar el sistema es bienvenida.
 
-## How to Contribute
+## Antes de empezar
 
-### Using the Issue Tracker
+- Lee la [guía técnica](docs/DEVELOPMENT.md) y la [hoja de ruta](docs/ROADMAP.md).
+- Busca en las [incidencias](https://github.com/XappiensAI/XappiensOS/issues)
+  por si alguien ya ha informado del mismo problema o idea.
 
-If you are considering filing a feature request, bug, or asking a question - please bear in mind that we have a different process than many projects for doing each of those tasks. A bug, with a description, can be filed in the issue tracker. If you are detailing something that Pop\!\_OS is doing that it shouldn't, that represents a flaw in the execution of a task the operating system is supposed to perform - please detail it in the issue tracker. Filing bugs represents the proper use of the issue tracker for most contributors (besides maintainers).
+## Informar de un fallo
 
-General questions, feedback, and discussion topics **should not** be submitted to as an issue in the issue tracker. These should be posted on the [Pop\!\_OS Subreddit](https://reddit.com/r/pop_os), which represents the official community forum. It is there that ideas can be discussed, questions answered, and feedback reviewed. These things will actively be removed from the Issue Tracker if posted.
+Abre una incidencia con:
 
-Feature requests follow our contribution process. In order to understand how features get selected to be implemented into Pop\!\_OS, please read our [Development Approach doc](https://support.system76.com/articles/pop-os-development-approach). But anything that exists outside of what we may discover via Research & Modeling will travel through the following contribution process:
+1. La versión del sistema (`cat /etc/os-release`).
+2. El paquete afectado y su versión (`apt policy <paquete>`).
+3. Qué ha pasado, qué esperabas y cómo reproducirlo.
+4. Registros o capturas si ayudan.
 
-* Idea and Brainstorming = [Subreddit](https://reddit.com/r/pop_os)
-* Under Consideration = [Pop\!\_Docs](https://support.system76.com)
-* Approved and on Roadmap = ["On Roadmap" in Issue Tracker](https://github.com/system76/pop-distro/issues?q=is%3Aopen+is%3Aissue+label%3A%22On+Roadmap%22)
+## Proponer cambios
+
+1. Haz un fork y crea una rama desde `main`.
+2. Mantén los cambios pequeños y centrados en un solo tema.
+3. Lanza las pruebas (`python3 -m unittest discover -s tests -v`) antes de abrir el
+   pull request; la sección [Pruebas](docs/DEVELOPMENT.md#pruebas) explica las
+   comprobaciones de escritorio.
+4. Describe en el pull request qué cambia y cómo lo has probado.
+
+Los cambios sobre ficheros heredados del sistema de construcción original
+deben ser mínimos; lo propio de XappiensOS vive en `config/xappiens-os/`,
+`branding/`, `packaging/` y `scripts/xappiens-hooks.sh`.
+
+## Licencia
+
+Al contribuir aceptas que tu aportación se distribuya bajo la
+[GPL-3.0](LICENSE.md) (o la licencia indicada en el directorio, como
+`packaging/xappiens-bt-sco-fix-dkms/`, GPL-2.0-only).
+
+---
+
+**English:** bug reports and pull requests are welcome in English or Spanish.
+Please follow the steps above: check existing issues, include system and
+package versions, keep pull requests focused and run the tests before
+submitting. Contributions are accepted under the GPL-3.0.
+
+Toda participación se rige por nuestro [código de conducta](CODE_OF_CONDUCT.md).

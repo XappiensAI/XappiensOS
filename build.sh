@@ -12,6 +12,11 @@
 #   DISTRO_VERSION       versión a construir (defecto: 26.04)
 #   NVIDIA=1             variante con drivers NVIDIA
 #   GPG_NAME             clave GPG con la que firmar el pool de la ISO
+#
+# Créditos: XappiensOS (c) 2026 XappiensAI, GPL-3.0. El sistema de construcción
+# (Makefile, mk/, scripts/) deriva de pop-os/iso, (c) 2017-2026 System76, Inc. y
+# colaboradores de Pop!_OS (Jeremy Soller, Michael Aaron Murphy y otros), GPL-3.0.
+# Detalle en NOTICE y docs/CREDITS.md.
 set -euo pipefail
 
 cd "$(dirname "$(readlink -f "$0")")"

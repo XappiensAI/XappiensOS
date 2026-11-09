@@ -1,31 +1,29 @@
 <!--
-
-If this is a bug, please use the template below. If this is a question or general discussion topic, please start a conversation in our chat https://chat.pop-os.org/ or post on our subreddit https://reddit.com/r/pop_os - as those are the proper forums for that type of discussion.
-
-Please only use this for reporting issues with _generating the ISO images for Pop!\_OS_. If your issue is a Pop!\_OS bug, please open your issue against the [pop-os/pop](https://github.com/pop-os/pop/issues/new) repository
+Usa esta plantilla para informar de fallos de XappiensOS (ISO, instalador,
+paquetes o herramientas del escritorio). Para ideas y propuestas, describe el
+caso de uso en lugar de rellenar los pasos.
+Use this template to report XappiensOS bugs. English or Spanish are fine.
 -->
 
-
-**Distribution (run `cat /etc/os-release`):**
- 
- 
- 
-**Related Application and/or Package Version (run `apt policy $PACKAGE NAME`):**
+**Sistema / Distribution (`cat /etc/os-release`):**
 
 
 
-**Issue/Bug Description:**
+**Paquete y versión / Package version (`apt policy <paquete>`):**
 
 
 
-**Steps to reproduce (if you know):**
+**Descripción del fallo / Issue description:**
 
 
 
-**Expected behavior:**
+**Pasos para reproducirlo / Steps to reproduce:**
 
 
 
-**Other Notes:**
+**Comportamiento esperado / Expected behavior:**
 
+
+
+**Otras notas / Other notes:**
 
