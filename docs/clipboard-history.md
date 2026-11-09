@@ -1,5 +1,11 @@
 # Historial del portapapeles
 
+<p align="center">
+  <img src="assets/clipboard-history.png" alt="Historial del portapapeles de XappiensOS en una sesión Wayland de prueba con contenido de ejemplo" width="420">
+</p>
+
+<p align="center"><sub>La herramienta real en una sesión Wayland aislada, con contenido de ejemplo.</sub></p>
+
 El historial de XappiensOS se inicia automáticamente en las sesiones COSMIC.
 **Super + V** abre un diálogo para recuperar texto e imágenes copiados durante
 esa sesión y pegarlos en la aplicación anterior. El botón de vaciar elimina las

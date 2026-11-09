@@ -5,7 +5,8 @@
 <p align="center">
   <a href="docs/ROADMAP.md"><img src="https://img.shields.io/badge/status-pre--alpha-D5A57D?style=for-the-badge&labelColor=524B62" alt="Status: pre-alpha"></a>
   <a href="config/xappiens-os/26.04.mk"><img src="https://img.shields.io/badge/base-Ubuntu%2026.04%20LTS-738794?style=for-the-badge&labelColor=524B62&logo=ubuntu&logoColor=white" alt="Base: Ubuntu 26.04 LTS"></a>
-  <a href="docs/DEVELOPMENT.md"><img src="https://img.shields.io/badge/desktop-COSMIC-E8C984?style=for-the-badge&labelColor=524B62" alt="Desktop: COSMIC"></a>
+  <a href="docs/DEVELOPMENT.md#base-técnica"><img src="https://img.shields.io/badge/desktop-COSMIC%20·%20Wayland-E8C984?style=for-the-badge&labelColor=524B62&logo=wayland&logoColor=E8C984" alt="Desktop: COSMIC on Wayland"></a>
+  <a href="docs/DEVELOPMENT.md#base-técnica"><img src="https://img.shields.io/badge/kernel-Linux%207.x-738794?style=for-the-badge&labelColor=524B62&logo=linux&logoColor=white" alt="Kernel: Linux 7.x"></a>
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-GPL--3.0-524B62?style=for-the-badge&logo=gnu&logoColor=E8C984" alt="License: GPL-3.0"></a>
 </p>
 
@@ -24,45 +25,59 @@
 
 ## English
 
-**XappiensOS** is the free operating system by **Xappiens**, built on **Ubuntu 26.04 LTS** with the **COSMIC** desktop. A solid, well-known base with our own identity, desktop tools and hardware-specific fixes on top.
+<h3 align="center">A modern Linux desktop, engineered from the boot menu up.</h3>
 
-Built by **[Xappiens](https://xappiens.com)**, developed in the open, and shared under the GPL-3.0.
+**XappiensOS** is the free operating system by **[Xappiens](https://xappiens.com)**: a long-term-support Ubuntu base, a native Wayland desktop written in Rust, and our own identity on every screen from power-on to sign-in. Developed in the open and shared under the GPL-3.0.
 
-> **Pre-alpha.** This repository contains the build system and packages. Validation of the complete ISO, installer and installed system is still pending. Follow the [roadmap](docs/ROADMAP.md) for the current state.
+> **Pre-alpha.** The build system and packages are here; full validation on real hardware is in progress. Track it on the [roadmap](docs/ROADMAP.md).
 
-### What comes with XappiensOS
+### Why XappiensOS
 
-| | Feature | What it does |
+| | | |
 |---|---|---|
-| 📋 | **Clipboard history** | **Super + V** opens the text and images copied during the session. Pick an entry to paste it into the previous app. |
-| ⌨️ | **Custom shortcuts** | Assign a key combination to paste saved text or run a command, with a built-in editor. [Guide](docs/keyboard-shortcuts.md). |
-| 💡 | **Our own identity** | System identity, logo, custom Plymouth boot screen, ISO boot menu and a [branded installer](branding/installer/README.md) with our own pixel-art illustrations. |
-| 🎧 | **Targeted Bluetooth fixes** | Hardware-specific audio settings and a DKMS fix for the headset microphone issue documented [here](packaging/xappiens-bt-sco-fix-dkms/README.md). |
-| 🪐 | **COSMIC desktop** | A modern, fast Wayland desktop, with our tools integrated from the first boot. |
+| 🪟 | **Native Wayland** | The **COSMIC** desktop, written in Rust: a fast, memory-safe compositor and shell, with no X11 legacy in the way. |
+| 🧱 | **Rock-solid LTS base** | **Ubuntu 26.04 LTS** with a current **Linux 7.x** kernel: years of security updates and wide hardware support. |
+| ⚡ | **Modern boot chain** | `systemd-boot` + `kernelstub` on the installed system, a `dracut` live image and a themed GRUB menu only where it belongs: on the ISO. |
+| 🎨 | **One identity, end to end** | Boot menu, Plymouth splash, installer, logo, hostname and system identity, re-applied on every boot so updates never undo it. |
+| 🔁 | **Convert in place** | A single `.deb` turns an existing 26.04 COSMIC system into XappiensOS, keeping your files, apps and settings. No reinstall. |
+| 🧪 | **Tested like software** | An automated test suite covers our desktop tools and installer branding, including end-to-end checks inside an isolated Wayland compositor. |
 
-### Copy. Choose. Paste.
+### Under the hood
 
-Copy a few items, press **Super + V**, and choose with the mouse or the arrow keys and **Enter**. Search, clear the history, or close it with **Escape**. The history stays in memory and ends when you sign out.
+XappiensOS is not a theme on top of a distro: it is built from scratch, package by package, by a reproducible pipeline.
 
-<p align="center">
-  <img src="docs/assets/clipboard-history.png" alt="XappiensOS clipboard history popup, tested in an isolated Wayland session with sample content" width="420">
-</p>
+```mermaid
+flowchart LR
+    A["debootstrap<br/>Ubuntu 26.04"] --> B["chroot<br/>packages + kernel"]
+    B --> C["XappiensOS layer<br/>overlays · hooks · .deb"]
+    C --> D["squashfs<br/>+ dracut live"]
+    D --> E["Hybrid ISO<br/>UEFI · BIOS"]
+    E --> F["QEMU UEFI<br/>smoke test"]
+    E --> G["zsync<br/>+ signed SHA256SUMS"]
+```
 
-<p align="center"><sub>Actual clipboard tool in an isolated Wayland test session, using sample content.</sub></p>
-
-The tool stores plain text and supported images. See the [clipboard guide](docs/clipboard-history.md) for storage limits, integration and tests.
+- **Layered by design.** Everything that makes XappiensOS lives in its own layer (`config/xappiens-os/`, `packaging/`, `branding/`): file overlays and per-stage hooks for the system and the live session. Inherited build files stay almost untouched, so upstream improvements merge cleanly.
+- **One command.** `./build.sh` checks dependencies and filesystem, builds our packages, signs the ISO pool and produces the image. Add `qemu` to boot it in a UEFI VM, or `all` for zsync and signed checksums.
+- **GPU ready.** `NVIDIA=1 ./build.sh` produces a variant with proprietary NVIDIA drivers.
+- **Brand as code.** Installer artwork, boot theme and logo are generated by scripts in [`branding/`](branding/installer/README.md), not hand-edited binaries.
 
 ### Get started
+
+```bash
+git clone --recurse-submodules https://github.com/XappiensAI/XappiensOS.git
+cd XappiensOS
+./deps.sh            # build dependencies
+./build.sh qemu      # build the ISO and boot it in a UEFI virtual machine
+```
+
+Building needs a Linux filesystem (ext4, btrfs, xfs…), about **25 GB free**, `sudo` and an internet connection.
 
 | I want to… | Start here |
 |---|---|
 | **Build an ISO** | [Build requirements and commands](docs/DEVELOPMENT.md#construir-la-iso) |
-| **Use the settings package** | [Install on an existing 26.04 COSMIC system](docs/DEVELOPMENT.md#convertir-un-sistema-2604-instalado) |
-| **Understand the code** | [Architecture and repository layout](docs/DEVELOPMENT.md#estructura-del-repositorio) |
-| **Test the clipboard** | [Automated and desktop checks](docs/clipboard-history.md#validación-en-una-sesión-cosmic-de-prueba) |
-| **Help build XappiensOS** | [Roadmap](docs/ROADMAP.md), [issues](https://github.com/XappiensAI/XappiensOS/issues) and [development checks](docs/DEVELOPMENT.md#pruebas) |
-
-The full settings package targets **26.04 COSMIC systems** ([details](docs/DEVELOPMENT.md)). It changes system identity and must not be installed on 24.04. Building requires a Linux filesystem, about **25 GB free**, `sudo` and an internet connection.
+| **Convert my current system** | [In-place conversion](docs/DEVELOPMENT.md#convertir-un-sistema-2604-instalado) |
+| **Understand the architecture** | [Repository layout](docs/DEVELOPMENT.md#estructura-del-repositorio) |
+| **Help build XappiensOS** | [Roadmap](docs/ROADMAP.md), [issues](https://github.com/XappiensAI/XappiensOS/issues) and [contributing](CONTRIBUTING.md) |
 
 <p align="right"><a href="#english">↑ back to top</a></p>
 
@@ -70,39 +85,59 @@ The full settings package targets **26.04 COSMIC systems** ([details](docs/DEVEL
 
 ## Español
 
-**XappiensOS** es el sistema operativo libre de **Xappiens**, basado en **Ubuntu 26.04 LTS** con el escritorio **COSMIC**. Una base sólida y conocida, y encima nuestra identidad, herramientas de escritorio y correcciones para hardware concreto.
+<h3 align="center">Un escritorio Linux moderno, diseñado desde el menú de arranque.</h3>
 
-Un proyecto de **[Xappiens](https://xappiens.com)**, desarrollado en abierto y compartido bajo la GPL-3.0.
+**XappiensOS** es el sistema operativo libre de **[Xappiens](https://xappiens.com)**: una base Ubuntu de soporte extendido, un escritorio Wayland nativo escrito en Rust y nuestra identidad en cada pantalla, desde que enciendes hasta que inicias sesión. Desarrollado en abierto y compartido bajo la GPL-3.0.
 
-> **Pre-alfa.** Este repositorio contiene el sistema de construcción y los paquetes. La validación de la ISO completa, el instalador y el sistema instalado sigue pendiente. Consulta el estado en la [hoja de ruta](docs/ROADMAP.md).
+> **Pre-alfa.** El sistema de construcción y los paquetes están aquí; la validación completa en hardware real está en marcha. Síguela en la [hoja de ruta](docs/ROADMAP.md).
 
-### Qué incluye XappiensOS
+### Por qué XappiensOS
 
-| | Función | Qué aporta |
+| | | |
 |---|---|---|
-| 📋 | **Historial del portapapeles** | **Super + V** muestra el texto y las imágenes copiados durante la sesión. Selecciona una entrada para pegarla en la aplicación anterior. |
-| ⌨️ | **Atajos personalizados** | Asocia combinaciones de teclas a textos guardados o comandos con el editor incluido. [Guía](docs/keyboard-shortcuts.md). |
-| 💡 | **Identidad propia** | Identidad del sistema, logo, pantalla de arranque Plymouth, menú de arranque de la ISO e [instalador con nuestra marca](branding/installer/README.md) e ilustraciones pixel-art propias. |
-| 🎧 | **Correcciones de Bluetooth** | Ajustes de audio según el hardware y un módulo DKMS para el fallo del micrófono de auriculares descrito [aquí](packaging/xappiens-bt-sco-fix-dkms/README.md). |
-| 🪐 | **Escritorio COSMIC** | Un escritorio Wayland moderno y rápido, con nuestras herramientas integradas desde el primer arranque. |
+| 🪟 | **Wayland nativo** | El escritorio **COSMIC**, escrito en Rust: compositor y entorno rápidos y seguros en memoria, sin el lastre de X11. |
+| 🧱 | **Base LTS sólida** | **Ubuntu 26.04 LTS** con kernel **Linux 7.x**: años de actualizaciones de seguridad y amplio soporte de hardware. |
+| ⚡ | **Arranque moderno** | `systemd-boot` + `kernelstub` en el sistema instalado, imagen live con `dracut` y menú GRUB con tema propio solo donde toca: en la ISO. |
+| 🎨 | **Una identidad de principio a fin** | Menú de arranque, pantalla Plymouth, instalador, logo, nombre del equipo e identidad del sistema, reaplicados en cada arranque para que ninguna actualización los deshaga. |
+| 🔁 | **Conversión en caliente** | Un solo `.deb` convierte un sistema 26.04 con COSMIC en XappiensOS conservando archivos, aplicaciones y ajustes. Sin reinstalar. |
+| 🧪 | **Probado como software** | Una batería de pruebas automáticas cubre nuestras herramientas de escritorio y la marca del instalador, con pruebas de extremo a extremo en un compositor Wayland aislado. |
 
-### Copia. Elige. Pega.
+### Bajo el capó
 
-Copia varios elementos, pulsa **Super + V** y elige con el ratón o con las flechas y **Enter**. Puedes buscar, vaciar el historial y cerrar con **Escape**. El contenido permanece en memoria y se borra al cerrar sesión.
+XappiensOS no es un tema sobre otra distribución: se construye desde cero, paquete a paquete, con un proceso reproducible.
 
-La captura de arriba muestra la herramienta real en una sesión Wayland aislada con contenido de ejemplo. Guarda texto sin formato e imágenes compatibles; los límites, la integración y las pruebas están en la [guía del portapapeles](docs/clipboard-history.md).
+```mermaid
+flowchart LR
+    A["debootstrap<br/>Ubuntu 26.04"] --> B["chroot<br/>paquetes + kernel"]
+    B --> C["Capa XappiensOS<br/>overlays · hooks · .deb"]
+    C --> D["squashfs<br/>+ live dracut"]
+    D --> E["ISO híbrida<br/>UEFI · BIOS"]
+    E --> F["Prueba en<br/>QEMU UEFI"]
+    E --> G["zsync<br/>+ SHA256SUMS firmados"]
+```
+
+- **Por capas.** Todo lo que hace XappiensOS vive en su propia capa (`config/xappiens-os/`, `packaging/`, `branding/`): overlays de ficheros y hooks por etapa para el sistema y la sesión live. Los ficheros heredados del sistema de construcción apenas se tocan, así que las mejoras de upstream se integran sin conflictos.
+- **Un solo comando.** `./build.sh` comprueba dependencias y sistema de ficheros, construye nuestros paquetes, firma el pool de la ISO y genera la imagen. Con `qemu` la arranca en una VM UEFI; con `all` añade zsync y sumas firmadas.
+- **Listo para GPU.** `NVIDIA=1 ./build.sh` genera una variante con los drivers propietarios de NVIDIA.
+- **La marca es código.** Las ilustraciones del instalador, el tema de arranque y el logo se generan con scripts en [`branding/`](branding/installer/README.md), no con binarios editados a mano.
 
 ### Empieza por aquí
+
+```bash
+git clone --recurse-submodules https://github.com/XappiensAI/XappiensOS.git
+cd XappiensOS
+./deps.sh            # dependencias de construcción
+./build.sh qemu      # construye la ISO y la arranca en una máquina virtual UEFI
+```
+
+Para construir necesitas un sistema de ficheros Linux (ext4, btrfs, xfs…), unos **25 GB libres**, `sudo` y conexión a internet.
 
 | Quiero… | Guía |
 |---|---|
 | **Construir una ISO** | [Requisitos y comandos de construcción](docs/DEVELOPMENT.md#construir-la-iso) |
-| **Usar el paquete de ajustes** | [Instalar sobre un sistema 26.04 con COSMIC](docs/DEVELOPMENT.md#convertir-un-sistema-2604-instalado) |
-| **Entender el código** | [Arquitectura y estructura del repositorio](docs/DEVELOPMENT.md#estructura-del-repositorio) |
-| **Probar el portapapeles** | [Pruebas automáticas y de escritorio](docs/clipboard-history.md#validación-en-una-sesión-cosmic-de-prueba) |
-| **Participar en el proyecto** | [Hoja de ruta](docs/ROADMAP.md), [incidencias](https://github.com/XappiensAI/XappiensOS/issues) y [comprobaciones de desarrollo](docs/DEVELOPMENT.md#pruebas) |
-
-El paquete completo de ajustes está dirigido a **sistemas 26.04 con COSMIC** ([detalles](docs/DEVELOPMENT.md)). Cambia la identidad del sistema y no debe instalarse sobre la 24.04. Para construir necesitas un sistema de ficheros Linux, unos **25 GB libres**, `sudo` y conexión a internet.
+| **Convertir mi sistema actual** | [Conversión sin reinstalar](docs/DEVELOPMENT.md#convertir-un-sistema-2604-instalado) |
+| **Entender la arquitectura** | [Estructura del repositorio](docs/DEVELOPMENT.md#estructura-del-repositorio) |
+| **Participar en el proyecto** | [Hoja de ruta](docs/ROADMAP.md), [incidencias](https://github.com/XappiensAI/XappiensOS/issues) y [cómo contribuir](CONTRIBUTING.md) |
 
 <p align="right"><a href="#español">↑ volver arriba</a></p>
 
