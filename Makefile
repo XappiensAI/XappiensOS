@@ -1,3 +1,10 @@
+# XappiensOS — sistema de construcción de la ISO
+#
+# Basado en el sistema de construcción de pop-os/iso
+# (https://github.com/pop-os/iso), Copyright (C) 2017-2026 System76, Inc. y
+# colaboradores de Pop!_OS, GPL-3.0. Modificado por XappiensAI desde 2026-11-07.
+# Ver NOTICE y docs/CREDITS.md.
+
 # Configuration settings
 DISTRO_CODE?=pop-os
 DISTRO_VERSION?=24.04

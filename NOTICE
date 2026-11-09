@@ -54,10 +54,14 @@ proyecto original. El detalle de cada cambio está en el historial de git.
                     Ubuntu 24.04 amd64).
   .gitignore        Ignorados ficheros .iso, .img y .log.
   README.md         Sustituido por el README de XappiensOS. El README
-                    original se conserva en docs/README.pop-os-iso.md.
+                    original se conserva en docs/upstream/README.pop-os-iso.md.
+  CONTRIBUTING.md, CODE_OF_CONDUCT.md, .github/ISSUE_TEMPLATE.md
+                    Sustituidos por los de XappiensOS (2026-11-09). Los
+                    originales de Pop!_OS se conservan en docs/upstream/.
 
 Ficheros nuevos de XappiensOS (GPLv3): build.sh, scripts/xappiens-hooks.sh,
-config/xappiens-os/, branding/, packaging/, tests/, docs/ROADMAP.md, NOTICE.
+config/xappiens-os/, branding/, packaging/, tests/, docs/ROADMAP.md,
+docs/CREDITS.md, NOTICE.
 
 La ISO de XappiensOS usa su propio tema de GRUB (config/xappiens-os/grub-theme)
 en lugar de data/grub-theme. La configuración pop-os sigue usando el original.

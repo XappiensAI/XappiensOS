@@ -95,7 +95,7 @@ La clave GPG que puede generar `build.sh` es local al proceso de construcción;
 no es una firma oficial de lanzamientos de XappiensOS. La publicación de ISOs y
 sumas firmadas es un hito pendiente de la [hoja de ruta](ROADMAP.md).
 
-## Convertir un Pop!_OS 26.04 instalado
+## Convertir un sistema 26.04 instalado
 
 El paquete `xappiens-default-settings` lleva el mismo contenido que la ISO
 (identidad, pantalla de arranque y herramientas del escritorio), así que convierte un
@@ -186,5 +186,5 @@ sean sencillas. Todo lo demás vive en `config/xappiens-os/`.
 XappiensOS es y será siempre **software libre**, bajo la GPL-3.0, igual que
 el sistema de construcción de Pop!_OS del que deriva (ver [LICENSE.md](../LICENSE.md)).
 La atribución al proyecto original, los ficheros modificados y los avisos de
-marcas están en [NOTICE](../NOTICE). Pop!_OS y System76 son marcas de System76, Inc.;
+marcas están en [NOTICE](../NOTICE) y en [CREDITS.md](CREDITS.md). Pop!_OS y System76 son marcas de System76, Inc.;
 XappiensOS es un proyecto independiente y no está afiliado a System76.

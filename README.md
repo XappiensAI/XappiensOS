@@ -5,7 +5,7 @@
 <p align="center">
   <a href="docs/ROADMAP.md"><img src="https://img.shields.io/badge/status-pre--alpha-D5A57D?style=for-the-badge&labelColor=524B62" alt="Status: pre-alpha"></a>
   <a href="config/xappiens-os/26.04.mk"><img src="https://img.shields.io/badge/base-Ubuntu%2026.04%20LTS-738794?style=for-the-badge&labelColor=524B62&logo=ubuntu&logoColor=white" alt="Base: Ubuntu 26.04 LTS"></a>
-  <a href="https://github.com/pop-os/cosmic-epoch"><img src="https://img.shields.io/badge/desktop-COSMIC-E8C984?style=for-the-badge&labelColor=524B62" alt="Desktop: COSMIC"></a>
+  <a href="docs/DEVELOPMENT.md"><img src="https://img.shields.io/badge/desktop-COSMIC-E8C984?style=for-the-badge&labelColor=524B62" alt="Desktop: COSMIC"></a>
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-GPL--3.0-524B62?style=for-the-badge&logo=gnu&logoColor=E8C984" alt="License: GPL-3.0"></a>
 </p>
 
@@ -24,7 +24,7 @@
 
 ## English
 
-**XappiensOS** is a free operating system built on **Pop!_OS**, **Ubuntu 26.04 LTS** and the **COSMIC** desktop. We keep that foundation and add our own identity, desktop tools and hardware-specific fixes.
+**XappiensOS** is the free operating system by **Xappiens**, built on **Ubuntu 26.04 LTS** with the **COSMIC** desktop. A solid, well-known base with our own identity, desktop tools and hardware-specific fixes on top.
 
 Built by **[Xappiens](https://xappiens.com)**, developed in the open, and shared under the GPL-3.0.
 
@@ -38,7 +38,7 @@ Built by **[Xappiens](https://xappiens.com)**, developed in the open, and shared
 | ⌨️ | **Custom shortcuts** | Assign a key combination to paste saved text or run a command, with a built-in editor. [Guide](docs/keyboard-shortcuts.md). |
 | 💡 | **Our own identity** | System identity, logo, custom Plymouth boot screen, ISO boot menu and a [branded installer](branding/installer/README.md) with our own pixel-art illustrations. |
 | 🎧 | **Targeted Bluetooth fixes** | Hardware-specific audio settings and a DKMS fix for the headset microphone issue documented [here](packaging/xappiens-bt-sco-fix-dkms/README.md). |
-| 🪐 | **COSMIC desktop** | A Wayland desktop on the Pop!_OS foundation, with the upstream build history preserved. |
+| 🪐 | **COSMIC desktop** | A modern, fast Wayland desktop, with our tools integrated from the first boot. |
 
 ### Copy. Choose. Paste.
 
@@ -57,12 +57,12 @@ The tool stores plain text and supported images. See the [clipboard guide](docs/
 | I want to… | Start here |
 |---|---|
 | **Build an ISO** | [Build requirements and commands](docs/DEVELOPMENT.md#construir-la-iso) |
-| **Use the settings package** | [Install on an existing Pop!_OS 26.04 system](docs/DEVELOPMENT.md#convertir-un-pop_os-2604-instalado) |
+| **Use the settings package** | [Install on an existing 26.04 COSMIC system](docs/DEVELOPMENT.md#convertir-un-sistema-2604-instalado) |
 | **Understand the code** | [Architecture and repository layout](docs/DEVELOPMENT.md#estructura-del-repositorio) |
 | **Test the clipboard** | [Automated and desktop checks](docs/clipboard-history.md#validación-en-una-sesión-cosmic-de-prueba) |
 | **Help build XappiensOS** | [Roadmap](docs/ROADMAP.md), [issues](https://github.com/XappiensAI/XappiensOS/issues) and [development checks](docs/DEVELOPMENT.md#pruebas) |
 
-The full settings package targets **Pop!_OS 26.04**. It changes system identity and must not be installed on 24.04. Building requires a Linux filesystem, about **25 GB free**, `sudo` and an internet connection.
+The full settings package targets **26.04 COSMIC systems** ([details](docs/DEVELOPMENT.md)). It changes system identity and must not be installed on 24.04. Building requires a Linux filesystem, about **25 GB free**, `sudo` and an internet connection.
 
 <p align="right"><a href="#english">↑ back to top</a></p>
 
@@ -70,7 +70,7 @@ The full settings package targets **Pop!_OS 26.04**. It changes system identity 
 
 ## Español
 
-**XappiensOS** es un sistema operativo libre basado en **Pop!_OS**, **Ubuntu 26.04 LTS** y el escritorio **COSMIC**. Conservamos esa base y añadimos nuestra identidad, herramientas de escritorio y correcciones para hardware concreto.
+**XappiensOS** es el sistema operativo libre de **Xappiens**, basado en **Ubuntu 26.04 LTS** con el escritorio **COSMIC**. Una base sólida y conocida, y encima nuestra identidad, herramientas de escritorio y correcciones para hardware concreto.
 
 Un proyecto de **[Xappiens](https://xappiens.com)**, desarrollado en abierto y compartido bajo la GPL-3.0.
 
@@ -84,7 +84,7 @@ Un proyecto de **[Xappiens](https://xappiens.com)**, desarrollado en abierto y c
 | ⌨️ | **Atajos personalizados** | Asocia combinaciones de teclas a textos guardados o comandos con el editor incluido. [Guía](docs/keyboard-shortcuts.md). |
 | 💡 | **Identidad propia** | Identidad del sistema, logo, pantalla de arranque Plymouth, menú de arranque de la ISO e [instalador con nuestra marca](branding/installer/README.md) e ilustraciones pixel-art propias. |
 | 🎧 | **Correcciones de Bluetooth** | Ajustes de audio según el hardware y un módulo DKMS para el fallo del micrófono de auriculares descrito [aquí](packaging/xappiens-bt-sco-fix-dkms/README.md). |
-| 🪐 | **Escritorio COSMIC** | Un escritorio Wayland sobre la base de Pop!_OS, conservando la historia del sistema de construcción original. |
+| 🪐 | **Escritorio COSMIC** | Un escritorio Wayland moderno y rápido, con nuestras herramientas integradas desde el primer arranque. |
 
 ### Copia. Elige. Pega.
 
@@ -97,12 +97,12 @@ La captura de arriba muestra la herramienta real en una sesión Wayland aislada 
 | Quiero… | Guía |
 |---|---|
 | **Construir una ISO** | [Requisitos y comandos de construcción](docs/DEVELOPMENT.md#construir-la-iso) |
-| **Usar el paquete de ajustes** | [Instalar sobre Pop!_OS 26.04](docs/DEVELOPMENT.md#convertir-un-pop_os-2604-instalado) |
+| **Usar el paquete de ajustes** | [Instalar sobre un sistema 26.04 con COSMIC](docs/DEVELOPMENT.md#convertir-un-sistema-2604-instalado) |
 | **Entender el código** | [Arquitectura y estructura del repositorio](docs/DEVELOPMENT.md#estructura-del-repositorio) |
 | **Probar el portapapeles** | [Pruebas automáticas y de escritorio](docs/clipboard-history.md#validación-en-una-sesión-cosmic-de-prueba) |
 | **Participar en el proyecto** | [Hoja de ruta](docs/ROADMAP.md), [incidencias](https://github.com/XappiensAI/XappiensOS/issues) y [comprobaciones de desarrollo](docs/DEVELOPMENT.md#pruebas) |
 
-El paquete completo de ajustes está dirigido a **Pop!_OS 26.04**. Cambia la identidad del sistema y no debe instalarse sobre la 24.04. Para construir necesitas un sistema de ficheros Linux, unos **25 GB libres**, `sudo` y conexión a internet.
+El paquete completo de ajustes está dirigido a **sistemas 26.04 con COSMIC** ([detalles](docs/DEVELOPMENT.md)). Cambia la identidad del sistema y no debe instalarse sobre la 24.04. Para construir necesitas un sistema de ficheros Linux, unos **25 GB libres**, `sudo` y conexión a internet.
 
 <p align="right"><a href="#español">↑ volver arriba</a></p>
 
@@ -110,10 +110,9 @@ El paquete completo de ajustes está dirigido a **Pop!_OS 26.04**. Cambia la ide
 
 <p align="center">
   <a href="LICENSE.md"><b>GPL-3.0</b></a> &nbsp;·&nbsp;
-  <a href="NOTICE">Attribution / Atribución</a> &nbsp;·&nbsp;
-  <a href="https://github.com/pop-os/iso">Upstream: pop-os/iso</a> &nbsp;·&nbsp;
+  <a href="docs/CREDITS.md">Credits / Créditos</a> &nbsp;·&nbsp;
+  <a href="CONTRIBUTING.md">Contributing / Contribuir</a> &nbsp;·&nbsp;
   <a href="https://xappiens.com">xappiens.com</a>
 </p>
 
-<p align="center"><sub>Independent project. Pop!_OS and System76 are trademarks of System76, Inc. XappiensOS is not affiliated with System76.</sub></p>
-<p align="center"><sub>Proyecto independiente. Pop!_OS y System76 son marcas de System76, Inc. XappiensOS no está afiliado a System76.</sub></p>
+<p align="center"><sub>© 2026 XappiensAI and contributors · Free software / Software libre</sub></p>
