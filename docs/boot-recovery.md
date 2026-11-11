@@ -87,6 +87,23 @@ verificar las entradas del firmware, sus cargadores y un arranque correcto
 desde la EFI nueva. Su eliminación y la de posibles particiones de recuperación
 son tareas separadas; no forman parte de una reparación del escritorio.
 
+Antes de reiniciar, comparar las entradas y el orden del firmware con la copia
+previa, verificar la tabla GPT y comprobar que el kernel y el initramfs que
+referencia la entrada coinciden con los archivos instalados en `/boot`.
+El initramfs debe poder leerse completo y contener los controladores necesarios
+para acceder al disco raíz; algunos sistemas de archivos están integrados en
+el kernel y no necesitan un módulo separado.
+
+Comprobar también que `default` en `loader/loader.conf` coincide con el ID
+completo de la entrada, incluido `.conf`, como indica
+[systemd-boot](https://www.freedesktop.org/software/systemd/man/latest/loader.conf.html#default).
+Por ejemplo, `default XappiensOS-current.conf` para una entrada con ese nombre.
+Algunas versiones de kernelstub generan el nombre sin la extensión. Con una
+única entrada Linux, el cargador puede seleccionarla como alternativa aunque
+el patrón no coincida: verla marcada como predeterminada en `bootctl list`
+no verifica por sí solo ese patrón. Respaldar el archivo antes de corregirlo
+y conservar las demás opciones y las preferencias explícitas del usuario.
+
 ## Operaciones administrativas con registro de salida
 
 En la base 26.04 con `sudo-rs 0.2.13`, un comando como
