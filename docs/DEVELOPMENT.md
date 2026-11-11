@@ -152,6 +152,9 @@ Consulta [la integración y las pruebas de escritorio](clipboard-history.md).
 
 ## Pruebas
 
+Para el inicio de sesión, las GPU híbridas y la identificación de la EFI,
+consulta [Arranque gráfico y recuperación](boot-recovery.md).
+
 ```bash
 /usr/bin/python3 -m unittest discover -s tests -v
 ```
