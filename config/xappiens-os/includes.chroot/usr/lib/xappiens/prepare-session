@@ -1,0 +1,121 @@
+#!/usr/bin/python3
+"""Prepare a COSMIC login without restarting or taking over a graphics device."""
+
+import argparse
+import configparser
+import os
+from pathlib import Path
+import pwd
+import subprocess
+import sys
+import time
+
+
+def is_new_cosmic_session(env):
+    return (env.get("XDG_SESSION_TYPE") == "wayland"
+            and "COSMIC" in env.get("XDG_CURRENT_DESKTOP", "").split(":")
+            and not env.get("WAYLAND_DISPLAY"))
+
+
+def greeter_is_running(uid, proc=Path("/proc")):
+    """Ignore zombies: they have already released their DRM file descriptors."""
+    for path in proc.iterdir():
+        if not path.name.isdecimal():
+            continue
+        try:
+            fields = dict(line.split(":", 1) for line in
+                          (path / "status").read_text().splitlines() if ":" in line)
+            if (fields.get("Name", "").strip() == "cosmic-comp"
+                    and int(fields["Uid"].split()[1]) == uid
+                    and fields.get("State", "").strip().split()[0] != "Z"):
+                return True
+        except (OSError, KeyError, ValueError, IndexError):
+            # Processes may exit while /proc is being enumerated.
+            continue
+    return False
+
+
+def wait_for_greeter(uid, timeout=5.0, running=greeter_is_running,
+                     clock=time.monotonic, sleep=time.sleep):
+    deadline = clock() + timeout
+    while running(uid):
+        remaining = deadline - clock()
+        if remaining <= 0:
+            return False
+        sleep(min(0.05, remaining))
+    return True
+
+
+def retire_missing_legacy_service(config_home, executable=Path("/usr/bin/ydotoold"),
+                                  run=subprocess.run):
+    """Disable only our old hotkey-paste unit when its executable is absent.
+
+    Keep the unit itself for rollback. Never touch a working installation,
+    a customized unit, an override, or a manager loading a different unit.
+    """
+    unit = config_home / "systemd/user/ydotoold.service"
+    if executable.exists() or unit.is_symlink() or not unit.is_file():
+        return False
+    parser = configparser.ConfigParser(interpolation=None)
+    parser.read_string(unit.read_text())
+    expected = {
+        "Unit": {"description": "ydotool daemon (virtual keyboard for hotkey paste)",
+                 "after": "default.target"},
+        "Service": {"type": "simple", "execstart": "/usr/bin/ydotoold",
+                    "restart": "on-failure", "restartsec": "2"},
+        "Install": {"wantedby": "default.target"},
+    }
+    if parser.defaults() or set(parser.sections()) != set(expected):
+        return False
+    if any(dict(parser[section]) != values for section, values in expected.items()):
+        return False
+    link = unit.parent / "default.target.wants/ydotoold.service"
+    if not link.is_symlink() or link.resolve() != unit.resolve():
+        return False
+    result = run(["systemctl", "--user", "show", "ydotoold.service",
+                  "--property=FragmentPath,DropInPaths"],
+                 capture_output=True, text=True, check=True, timeout=5)
+    properties = dict(line.split("=", 1) for line in result.stdout.splitlines()
+                      if "=" in line)
+    if (properties.get("FragmentPath") != str(unit)
+            or properties.get("DropInPaths", "")):
+        return False
+    run(["systemctl", "--user", "disable", "--now", "ydotoold.service"],
+        capture_output=True, text=True, check=True, timeout=5)
+    run(["systemctl", "--user", "reset-failed", "ydotoold.service"],
+        capture_output=True, text=True, check=False, timeout=5)
+    return True
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--cleanup-legacy", action="store_true",
+                        help="retire the missing legacy executable in this user session")
+    args = parser.parse_args()
+    if os.getuid() == 0:
+        return 0
+    try:
+        greeter_uid = pwd.getpwnam("cosmic-greeter").pw_uid
+    except KeyError:
+        greeter_uid = None
+    if os.getuid() == greeter_uid:
+        return 0
+    if not args.cleanup_legacy:
+        if not is_new_cosmic_session(os.environ):
+            return 0
+        if greeter_uid is not None and not wait_for_greeter(greeter_uid):
+            print("XappiensOS: el compositor de acceso sigue activo tras 5 s; "
+                  "continúa el inicio de sesión.", file=sys.stderr)
+    config_home = Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config")
+    try:
+        if retire_missing_legacy_service(config_home):
+            print("XappiensOS: desactivado el antiguo ydotoold sin ejecutable; "
+                  "se conserva su archivo de servicio.", file=sys.stderr)
+    except (OSError, configparser.Error, subprocess.SubprocessError) as error:
+        print(f"XappiensOS: no se pudo revisar el servicio antiguo: {error}",
+              file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
