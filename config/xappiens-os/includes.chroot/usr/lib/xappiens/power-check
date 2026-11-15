@@ -1,0 +1,133 @@
+#!/usr/bin/python3
+"""Avisa si el firmware mantiene la CPU clavada en su frecuencia mínima.
+
+Tras un corte por batería agotada, algunos portátiles (visto en un ASUS ProArt
+P16 con AMD) se quedan con el controlador embebido limitando la CPU a su
+mínimo (unos 600 MHz) aunque el sistema permita mucho más. Todo va de cuatro
+a diez veces más lento, incluso la BIOS, y ningún perfil de energía lo
+arregla: hay que reiniciar el controlador embebido con el equipo apagado.
+
+Este programa carga un núcleo durante un par de segundos y compara la
+frecuencia real con la que permite la política de cpufreq. Si la política
+permite al menos el doble del mínimo y la CPU no pasa del mínimo, avisa
+con una notificación y en el journal. No cambia ningún ajuste.
+"""
+
+import argparse
+import os
+from pathlib import Path
+import sys
+import time
+
+SYSFS = Path("/sys/devices/system/cpu")
+
+SUMMARY = "La CPU está limitada por el firmware"
+BODY = ("El procesador no pasa de {cur} MHz aunque podría llegar a {max} MHz. "
+        "Suele ocurrir tras quedarse sin batería o un apagado forzado. "
+        "Para recuperarlo: apaga el equipo, desconecta el cargador, mantén "
+        "pulsado el botón de encendido 40 segundos, vuelve a conectar el "
+        "cargador y enciende.")
+
+
+def read_khz(path):
+    try:
+        return int(Path(path).read_text().strip())
+    except (OSError, ValueError):
+        return None
+
+
+def policy(cpu, sysfs=SYSFS):
+    """(mínimo del hardware, máximo que permite la política) en kHz, o None."""
+    base = Path(sysfs) / f"cpu{cpu}" / "cpufreq"
+    low = read_khz(base / "cpuinfo_min_freq")
+    high = read_khz(base / "scaling_max_freq")
+    if not low or not high:
+        return None
+    return low, high
+
+
+def sample_under_load(cpu, duration=2.0, interval=0.1, sysfs=SYSFS,
+                      clock=time.monotonic, pin=os.sched_setaffinity):
+    """Mantiene ocupado un núcleo y devuelve las frecuencias leídas (kHz)."""
+    try:
+        pin(0, {cpu})
+    except OSError:
+        pass
+    path = Path(sysfs) / f"cpu{cpu}" / "cpufreq" / "scaling_cur_freq"
+    samples = []
+    start = next_read = clock()
+    # Se descarta el primer tramo: el gobernador tarda en subir la frecuencia.
+    warmup = start + duration / 4
+    while (now := clock()) - start < duration:
+        if now >= next_read:
+            khz = read_khz(path)
+            if khz and now >= warmup:
+                samples.append(khz)
+            next_read = now + interval
+    return samples
+
+
+def is_throttled(samples, low, high):
+    """Clavada en el mínimo cuando la política permite al menos el doble."""
+    if not samples or high < 2 * low:
+        return False
+    return max(samples) < 1.25 * low
+
+
+def pick_cpu(affinity=None):
+    cpus = sorted(affinity if affinity is not None else os.sched_getaffinity(0))
+    # El último núcleo suele estar menos ocupado que cpu0 durante el arranque.
+    return cpus[-1]
+
+
+def notify(summary, body):
+    try:
+        import gi
+        gi.require_version("Gio", "2.0")
+        from gi.repository import Gio, GLib
+        bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+        bus.call_sync(
+            "org.freedesktop.Notifications", "/org/freedesktop/Notifications",
+            "org.freedesktop.Notifications", "Notify",
+            GLib.Variant("(susssasa{sv}i)", (
+                "XappiensOS", 0, "dialog-warning", summary, body, [],
+                {"urgency": GLib.Variant("y", 2)}, 0)),
+            None, Gio.DBusCallFlags.NONE, 5000, None)
+        return True
+    except Exception as exc:  # sin sesión gráfica o sin servicio de avisos
+        print(f"XappiensOS: no se pudo mostrar el aviso: {exc}", file=sys.stderr)
+        return False
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--delay", type=float, default=0,
+                        help="segundos de espera antes de medir")
+    parser.add_argument("--quiet", action="store_true",
+                        help="sin notificación; sólo el código de salida")
+    args = parser.parse_args(argv)
+
+    if args.delay > 0:
+        time.sleep(args.delay)
+    cpu = pick_cpu()
+    limits = policy(cpu)
+    if limits is None:
+        print("XappiensOS: cpufreq no disponible; no se comprueba la CPU.",
+              file=sys.stderr)
+        return 0
+    low, high = limits
+    samples = sample_under_load(cpu)
+    if not is_throttled(samples, low, high):
+        peak = max(samples) // 1000 if samples else "?"
+        print(f"XappiensOS: CPU sin limitar (cpu{cpu} llega a {peak} MHz).",
+              file=sys.stderr)
+        return 0
+    body = BODY.format(cur=max(samples) // 1000, max=high // 1000)
+    print(f"XappiensOS: {SUMMARY}. {body}", file=sys.stderr)
+    if not args.quiet:
+        notify(SUMMARY, body)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
