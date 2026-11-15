@@ -1,0 +1,12 @@
+[Unit]
+Description=Comprobación de CPU limitada por el firmware (XappiensOS)
+Documentation=https://github.com/XappiensAI/XappiensOS/blob/main/docs/power-loss.md
+PartOf=cosmic-session.target
+After=cosmic-session.target
+
+[Service]
+Type=oneshot
+# Se espera a que termine el arranque de la sesión antes de medir.
+ExecStart=/usr/lib/xappiens/power-check --delay 45
+# Código 1 = CPU limitada, ya avisado: no es un fallo del servicio.
+SuccessExitStatus=1

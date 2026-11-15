@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Comprobación de energía de XappiensOS
+Comment=Avisa si el firmware deja la CPU limitada tras un corte de batería
+Exec=/usr/bin/systemctl --user start --no-block xappiens-power-check.service
+TryExec=/usr/lib/xappiens/power-check
+OnlyShowIn=COSMIC;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
